@@ -1,5 +1,6 @@
 import { GenericMessageEvent } from '@slack/bolt'
 import app from './server'
+import { maPool, masStats, maStats } from './convos'
 
 
 const BOT_NAME = `streamBOOT`
@@ -36,19 +37,17 @@ i'll never stream private messages, group chats, or private channels. message <@
 }
 
 
-// {{{ FIXME: let's use Redis for all of this
-export type Watching = {
-  [key: string]: boolean
-}
-const watching: Watching = {}
-
+// {{{ FIXME: let's use Redis or Airtable for all of this
 async function setWatching(id: string, onOff: boolean) {
-  watching[id] = onOff
-  return watching[id]
+  const ma = maPool[id]
+  if (!(id in maPool) || typeof ma === 'undefined') {
+    throw new Error(`resource with id '${id}' is unknown`)
+  }
+  return ma.watching = onOff
 }
 
 async function statusWatching(id: string) {
-  return watching[id]
+  return maPool[id]?.watching
 }
 // }}}
 
@@ -62,7 +61,6 @@ app.event('app_mention', async ({ event, say, client, logger }) => {
     let msg = ''
 
     if (context = event.text.match(RegExp(`^<@${BOT_ID}> help`, `i`))) {
-      logger.info('user tryna get help', event)
       msg = MSGS.joinChannel
 
     } else if (context = event.text.match(RegExp(`^<@${BOT_ID}> (enable|disable) (me|channel)`, `i`))) {
@@ -106,6 +104,10 @@ app.event('app_mention', async ({ event, say, client, logger }) => {
         default:
           console.error(msg = 'could not get status. check your command?', event)
       }
+    }
+
+    if (msg.length === 0) {
+      msg = 'check your command ;3' // FIXME lol proper error handling
     }
 
     await client.chat.postMessage({ // .postEphemeral

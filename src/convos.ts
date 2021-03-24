@@ -1,19 +1,43 @@
 import { GenericMessageEvent } from '@slack/bolt'
-import MA from 'moving-average'
+import MA from './ma'
 import app from './server'
+
+import { AirtablePlusPlus } from 'airtable-plusplus'
+//import { AirtablePlus } from 'airtable-plus'
+
+
+const AIRTABLE_API_BASE = process.env.AIRTABLE_API_BASE ?? ''
+const AIRTABLE_API_KEY  = process.env.AIRTABLE_API_KEY  ?? ''
+const AIRTABLE_API_NAME = process.env.AIRTABLE_API_NAME ?? ''
+
+if  (AIRTABLE_API_BASE === ''
+  || AIRTABLE_API_KEY === ''
+  || AIRTABLE_API_NAME === '') {
+  throw new Error('missing airtable environment variables')
+}
+
+//const airtable = new AirtablePlus
+const airtable = new AirtablePlusPlus({
+  baseId:    AIRTABLE_API_BASE,
+  apiKey:    AIRTABLE_API_KEY,
+  tableName: AIRTABLE_API_NAME,
+})
 
 
 export const MA_INTERVAL = process.env.MA_INTERVAL
   ? parseInt(process.env.MA_INTERVAL, 10)
-  : 1000 * 60 * 1  // one minute
+  : 1000 * 10 * 1  // 10 seconds
+  //: 1000 * 30 * 1  // 30 seconds
+  //: 1000 * 60 * 1  // one minute
   //: 1000 * 60 * 30 // thirty minutes
 
 
 export type MaPool = {
-  [key: string]: {
-    ma: any
-    iMsgs: number // this interval's (pending) message count
-    oMsgs: number // old (previously processed) message count
+  [key: string]: { // a slack resource id
+    ma: any           // a moving average instance
+    iMsgs: number     // this interval's (pending) message count
+    oMsgs: number     // old (previously processed) message count
+    watching: boolean // are we tracking this resource?
   }
 }
 
@@ -27,36 +51,60 @@ export function getMa(chId: string) {
       ma: MA(MA_INTERVAL),
       iMsgs: 0,
       oMsgs: 0,
+      watching: true,
     }
   }
   return maPool[chId]
 }
 
 
-export function pushMas(mas: MaPool, now: Date | number) {
+export async function pushMas(mas: MaPool, now: Date | number) {
   for (const [chId, chMa] of Object.entries(mas)) {
     chMa.ma.push(now, chMa.iMsgs)
     chMa.oMsgs += chMa.iMsgs
     chMa.iMsgs = 0
+    const stats = maStats(chId, chMa.ma)
+    //delete stats.id // FIXME
+    const upsertData = { watching: chMa.watching, ...stats }
+    try { // FIXME: this should happen in bulk
+      await airtable.upsert(`slack_id`, upsertData)
+    } catch (e) {
+      console.error(e)
+    }
   }
 }
 
+export async function pullMas(mas: MaPool) {
+  const _mas = await airtable.read()
+  for (const _ma of _mas) {
+    maPool[_ma.fields.slack_id as string] = {
+      iMsgs: 0,
+      oMsgs: 0,
+      watching: _ma.fields.watching as boolean,
+      ma: MA(MA_INTERVAL).create(
+        _ma.fields.average,
+        _ma.fields.variance,
+        _ma.fields.deviation,
+        _ma.fields.forecast,
+      ),}
+  }
+}
 
 type MaStat = {
-  id: string
+  slack_id: string
   average:   number
   variance:  number
   deviation: number
   forecast:  number
 }
 
-export function maStats(id: string, ma: MA) {
+export function maStats(slack_id: string, ma: MA) {
   const stats: MaStat = {
-    id,
-    average:   ma.movingAverage(),
-    variance:  ma.variance(),
-    deviation: ma.deviation(),
-    forecast:  ma.forecast(),
+    slack_id,
+    average:   ma.movingAverage() || 0,
+    variance:  ma.variance()      || 0,
+    deviation: ma.deviation()     || 0,
+    forecast:  ma.forecast()      || 0,
   }
   return stats
 }
