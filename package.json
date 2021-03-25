@@ -19,8 +19,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "npx tsc",
-    "start": "npx nodemon dist/index.js",
+    "build": "echo 'npx tsc #FIXME'",
+    "start": "echo 'npx nodemon dist/index.js #FIXME' && yarn dev",
     "dev": "npx ts-node-dev --rs --transpile-only --watch=src src/index.ts"
   },
   "dependencies": {
