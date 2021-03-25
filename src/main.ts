@@ -6,14 +6,12 @@ import './commands'
 export default async function main() {
   const { HOST, PORT, NODE_ENV } = process.env
   await app.start({
-    host: HOST,
+    host: (HOST ? HOST : '0.0.0.0'),
     port: (PORT ? parseInt(PORT) : 3000),
   })
   console.log(`⚡️ Bolt app is running on http://${HOST}:${PORT}/ in mode='${NODE_ENV}'!`)
 
-  console.table(maPool)
   await pullMas(maPool)
-  console.table(maPool)
 
   setInterval(async () => {
     await pushMas(maPool, Date.now())
