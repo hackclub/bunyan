@@ -1,5 +1,5 @@
 import { GenericMessageEvent } from '@slack/bolt'
-import MA from './ma'
+import MA, { MovingAverage } from './ma'
 import app from './server'
 
 import { AirtablePlusPlus } from 'airtable-plusplus'
@@ -77,15 +77,17 @@ export async function pushMas(mas: MaPool, now: Date | number) {
 export async function pullMas(mas: MaPool) {
   const _mas = await airtable.read()
   for (const _ma of _mas) {
+    const __ma = MA(MA_INTERVAL)
+    console.log(__ma)
     maPool[_ma.fields.slack_id as string] = {
       iMsgs: 0,
       oMsgs: 0,
       watching: _ma.fields.watching as boolean,
       ma: MA(MA_INTERVAL).create(
-        _ma.fields.average,
-        _ma.fields.variance,
-        _ma.fields.deviation,
-        _ma.fields.forecast,
+        _ma.fields.average   as number,
+        _ma.fields.variance  as number,
+        _ma.fields.deviation as number,
+        _ma.fields.forecast  as number,
       ),}
   }
 }
@@ -98,13 +100,13 @@ type MaStat = {
   forecast:  number
 }
 
-export function maStats(slack_id: string, ma: MA) {
+export function maStats(slack_id: string, ma: MovingAverage) {
   const stats: MaStat = {
     slack_id,
-    average:   ma.movingAverage() || 0,
-    variance:  ma.variance()      || 0,
-    deviation: ma.deviation()     || 0,
-    forecast:  ma.forecast()      || 0,
+    average:   ma.average()   || 0,
+    variance:  ma.variance()  || 0,
+    deviation: ma.deviation() || 0,
+    forecast:  ma.forecast()  || 0,
   }
   return stats
 }

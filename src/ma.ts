@@ -2,77 +2,71 @@
 
 // INFO: https://raw.githubusercontent.com/pgte/moving-average/master/index.js
 
+
 const exp = Math.exp
 
-exports =
-module.exports =
-function MovingAverage (timespan) {
+
+export type MovingAverage = {
+  create:    (average: number, variance: number, deviation: number, forecase: number) => MovingAverage
+  push:      (time: number, value: number) => void
+  average:   () => number
+  variance:  () => number
+  deviation: () => number
+  forecast:  () => number
+}
+
+
+export default function average (timespan: number) {
   if (typeof timespan !== 'number') { throw new Error('must provide a timespan to the moving average constructor') }
 
   if (timespan <= 0) { throw new Error('must provide a timespan > 0 to the moving average constructor') }
 
-  let ma     // moving average
-  let v = 0  // variance
-  let d = 0  // deviation
-  let f = 0  // forecast
+  let ma: number      // moving average
+  let v: number  = 0  // variance
+  let d: number  = 0  // deviation
+  let f: number  = 0  // forecast
 
-  let previousTime
+  let previousTime: number
 
-  let ret = {}
-
-  ret.create =
-  function create(movingAverage, variance, deviation, forecast) {
-    ma = movingAverage
-    v = variance
-    d = deviation
-    f = forecast
-    return this
-  }
-
-  function alpha (t, pt) {
+  function alpha (t: number, pt: number) {
     return 1 - (exp(-(t - pt) / timespan))
   }
 
-  ret.push =
-  function push (time, value) {
-    if (previousTime) {
-      // calculate moving average
-      const a = alpha(time, previousTime)
-      const diff = value - ma
-      const incr = a * diff
-      ma = a * value + (1 - a) * ma
-      // calculate variance & deviation
-      v = (1 - a) * (v + diff * incr)
-      d = Math.sqrt(v)
-      // calculate forecast
-      f = ma + a * diff
-    } else {
-      ma = value
-    }
-    previousTime = time
-  }
+  let ret: MovingAverage = {
+    create: (average, variance, deviation, forecast) => {
+      ma = average
+      v = variance
+      d = deviation
+      f = forecast
+      return ret
+    },
 
-  // Exponential Moving Average
+    push: (time, value) => {
+      if (previousTime) {
+        // calculate moving average
+        const a = alpha(time, previousTime)
+        const diff = value - ma
+        const incr = a * diff
+        ma = a * value + (1 - a) * ma
+        // calculate variance & deviation
+        v = (1 - a) * (v + diff * incr)
+        d = Math.sqrt(v)
+        // calculate forecast
+        f = ma + a * diff
+      } else {
+        ma = value
+      }
+      previousTime = time
+    },
 
-  ret.movingAverage =
-  function movingAverage () {
-    return ma
-  }
+    // Exponential Moving Average
+    average: () => { return ma },
 
-  // Variance
-  ret.variance =
-  function variance () {
-    return v
-  }
+    variance: () => { return v },
 
-  ret.deviation =
-  function deviation () {
-    return d
-  }
+    deviation: () => { return d },
 
-  ret.forecast =
-  function forecast () {
-    return f
+    forecast: () => { return f },
   }
 
   return ret
