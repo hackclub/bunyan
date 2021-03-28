@@ -18,7 +18,7 @@ receiver.router.get(`/api/convo/:id`, (req: Request, res: Response, next: NextFu
   } else {
     const ma = maPool[maId]?.ma
     const stats = maStats(maId, ma)
-    stats.average = stats.average === undefined ? 0 : stats.average // FIXME
+    //stats.average = stats.average === undefined ? 0 : stats.average // FIXME
     res.status(200).json(stats)
   }
 })
