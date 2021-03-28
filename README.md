@@ -21,11 +21,11 @@ here is an example EMA:
 
 ```json
 {
-    "chId": "C01RNH6K9JS",
-    "average": 10,
-    "variance": 0,
-    "deviation": 0,
-    "forecast": 0
+    "slack_id": "C01RNH6K9JS",
+    "average": "10",
+    "variance": "0",
+    "deviation": "0",
+    "forecast": "0"
 }
 ```
 
@@ -33,11 +33,11 @@ here is another example EMA (it is the same as the first but has "decayed" with 
 
 ```json
 {
-    "id": "C01RNH6K9JS",
-    "average": 0.00012257550710530237,
-    "variance": 0.00012256048235036022,
-    "deviation": 0.011070703787490668,
-    "forecast": -8.830486419323291e-05
+    "slack_id": "C01RNH6K9JS",
+    "average": "0.00012257550710530237",
+    "variance": "0.00012256048235036022",
+    "deviation": "0.011070703787490668",
+    "forecast": "-8.830486419323291e-05"
 }
 ```
 
@@ -56,7 +56,7 @@ here is another example EMA (it is the same as the first but has "decayed" with 
 
 endpoints:
 
-* [GET /api/convos](https://sb2.fogg.house/api/convos) - all tracked resources
-* [GET /api/convos/:id](https://sb2.fogg.house/api/convo/C01RNH6K9JS) - grab a single resource
+* [GET /api/convos](https://streamboot-bot.herokuapp.com/api/convos) - all tracked resources
+* [GET /api/convos/:id](https://streamboot-bot.herokuapp.com/api/convo/C01RNH6K9JS) - grab a single resource
 
 P.S. these endpoints are temporary and literally running on my personal laptop behind cloudlfare
