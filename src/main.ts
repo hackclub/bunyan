@@ -12,13 +12,20 @@ export default async function main() {
   console.log(`⚡️ Bolt app is running on http://${HOST}:${PORT}/ in mode='${NODE_ENV}'!`)
 
   await pullMas(maPool)
-  console.table(masStats(maPool))
+  await loopPushMas()
+  setInterval(loopPushMas, MA_INTERVAL)
+}
 
-  setInterval(async () => {
-    //await pullMas(maPool)
-    //for (const maStats of masStats(maPool)) { console.log(JSON.stringify(maStats, null, 2)); }
 
+async function loopPushMas() {
+  //await pullMas(maPool)
+  //for (const maStats of masStats(maPool)) { console.log(JSON.stringify(maStats, null, 2)); }
+
+  try {
     await pushMas(maPool, Date.now())
-    console.table(masStats(maPool))
-  }, MA_INTERVAL)
+  } catch (e) {
+    console.error(e)
+  }
+
+  console.table(masStats(maPool))
 }
