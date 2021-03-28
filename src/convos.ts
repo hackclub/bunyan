@@ -78,16 +78,15 @@ export async function pullMas(mas: MaPool) {
   const _mas = await airtable.read()
   for (const _ma of _mas) {
     const __ma = MA(MA_INTERVAL)
-    console.log(__ma)
     maPool[_ma.fields.slack_id as string] = {
       iMsgs: 0,
       oMsgs: 0,
       watching: _ma.fields.watching as boolean,
       ma: MA(MA_INTERVAL).create(
-        _ma.fields.average   as number,
-        _ma.fields.variance  as number,
-        _ma.fields.deviation as number,
-        _ma.fields.forecast  as number,
+        parseFloat(_ma.fields.average   as string),
+        parseFloat(_ma.fields.variance  as string),
+        parseFloat(_ma.fields.deviation as string),
+        parseFloat(_ma.fields.forecast  as string),
       ),}
   }
 }
