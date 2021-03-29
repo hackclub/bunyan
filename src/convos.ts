@@ -96,7 +96,7 @@ export async function pullMas(mas: MaPool) {
   }
 }
 
-type MaStat = {
+export type MaStat = {
   slack_id:  string
   average:   string
   variance:  string

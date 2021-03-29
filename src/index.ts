@@ -6,6 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
 //import './config'
 import './server'
 import './api'
+import './home'
 
 import main from './main'; main()
 
