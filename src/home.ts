@@ -3,17 +3,19 @@ import { maPool, pushMas, pullMas, maStats, MaStat } from './convos'
 
 
 app.event('app_home_opened', async ({ event, client, context }) => {
-  const sortedMaEntries = Object.entries(maPool).sort((a, b) => {
-    if (a[1].ma.average() < b[1].ma.average()) {
-      return 1
-    } else if (a[1].ma.average() > b[1].ma.average()) {
-      return -1
-    } else {
-      return 0
-    }
-  })
+  const sortedMaEntries = Object.entries(maPool)
+    .sort((a, b) => {
+      if (a[1].ma.average() < b[1].ma.average()) {
+        return 1
+      } else if (a[1].ma.average() > b[1].ma.average()) {
+        return -1
+      } else {
+        return 0
+      }
+    })
   const emaBlocks = []
   for (const [chId, chMa] of sortedMaEntries) {
+    if (chId.startsWith('U')) { continue }
     const maStat = maStats(chId, chMa.ma)
     emaBlocks.push(...channelMaBlocks(chId, maStat, chMa.watching))
     emaBlocks.push({"type": "divider"})
@@ -54,7 +56,29 @@ app.event('app_home_opened', async ({ event, client, context }) => {
 })
 
 
-function channelMaBlocks(slackId: string, maStat: MaStat, watching: boolean) {
+export function userMaBlocks(slackId: string, maStat: MaStat, watching: boolean) {
+  return [
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": `User tracked: ${watching ? '✔️' : '🚫'}`
+        },
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": `*<@${slackId}>*\nAverage: *${maStat.average}*\nVariance: *${maStat.variance}*\nDeviation: *${maStat.deviation}*\nForecast: *${maStat.forecast}*`
+      },
+    },
+  ]
+}
+
+
+export function channelMaBlocks(slackId: string, maStat: MaStat, watching: boolean) {
   return [
     {
       "type": "context",
@@ -65,7 +89,6 @@ function channelMaBlocks(slackId: string, maStat: MaStat, watching: boolean) {
         },
       ]
     },
-
     {
       "type": "section",
       "text": {
@@ -74,31 +97,31 @@ function channelMaBlocks(slackId: string, maStat: MaStat, watching: boolean) {
       },
     },
 
-    { // TODO: implement these with the `.watching` property
-      "type": "actions",
-      "elements": [
-        {
-          "type": "button",
-          "text": {
-            "type": "plain_text",
-            "text": "Enable",
-            "emoji": true
-          },
-          "style": "primary",
-          "value": "approve"
-        },
-        {
-          "type": "button",
-          "text": {
-            "type": "plain_text",
-            "text": "Disable",
-            "emoji": true
-          },
-          "style": "danger",
-          "value": "decline"
-        },
-      ]
-    },
+    //{ // TODO: implement these with the `.watching` property
+      //"type": "actions",
+      //"elements": [
+        //{
+          //"type": "button",
+          //"text": {
+            //"type": "plain_text",
+            //"text": "Enable",
+            //"emoji": true
+          //},
+          //"style": "primary",
+          //"value": "approve"
+        //},
+        //{
+          //"type": "button",
+          //"text": {
+            //"type": "plain_text",
+            //"text": "Disable",
+            //"emoji": true
+          //},
+          //"style": "danger",
+          //"value": "decline"
+        //},
+      //]
+    //},
   ]
 }
 

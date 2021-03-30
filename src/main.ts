@@ -18,7 +18,6 @@ export default async function main() {
 
 
 async function loopPushMas() {
-
   try {
     //await pullMas(maPool)
     //for (const maStats of masStats(maPool)) { console.log(JSON.stringify(maStats, null, 2)) }

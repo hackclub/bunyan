@@ -7,7 +7,7 @@ const exp = Math.exp
 
 
 export type MovingAverage = {
-  create:    (average: number, variance: number, deviation: number, forecase: number) => MovingAverage
+  create:    (average: number, variance: number, deviation: number, forecase: number, previous: number) => MovingAverage
   push:      (time: number, value: number) => void
   average:   () => number
   variance:  () => number
@@ -33,11 +33,12 @@ export default function average (timespan: number) {
   }
 
   let ret: MovingAverage = {
-    create: (average, variance, deviation, forecast) => {
+    create: (average: number, variance: number, deviation: number, forecast: number, previous: number) => {
       ma = average
       v = variance
       d = deviation
       f = forecast
+      previousTime = previous
       return ret
     },
 

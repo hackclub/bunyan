@@ -1,6 +1,8 @@
-import { GenericMessageEvent } from '@slack/bolt'
+import { GenericMessageEvent, SayArguments } from '@slack/bolt'
 import app from './server'
-import { maPool, masStats, maStats } from './convos'
+import { maPool, masStats, maStats, getMa } from './convos'
+import { airtable } from './api'
+import { channelMaBlocks, userMaBlocks } from './home'
 
 
 const BOT_NAME = `streamBOOT`
@@ -43,6 +45,11 @@ async function setWatching(id: string, onOff: boolean) {
   if (!(id in maPool) || typeof ma === 'undefined') {
     throw new Error(`resource with id '${id}' is unknown`)
   }
+  try {
+    await airtable.upsert(`slack_id`, {slack_id: id, watching: onOff})
+  } catch (e) {
+    console.error(e)
+  }
   return ma.watching = onOff
 }
 
@@ -54,6 +61,10 @@ async function statusWatching(id: string) {
 
 //app.message(RegExp(`^<@${BOT_ID}> help`, `i`), async ({ message, client, logger, context }) => {
 app.event('app_mention', async ({ event, say, client, logger }) => {
+  if (!event.text.startsWith(`<@${BOT_ID}>`)) {
+    return
+  }
+
   if ('user' in event && event.user !== undefined) {
     // Not all messages have a user FIXME
 
@@ -104,6 +115,29 @@ app.event('app_mention', async ({ event, say, client, logger }) => {
         default:
           console.error(msg = 'could not get status. check your command?', event)
       }
+
+    } else if (context = event.text.match(RegExp(`^<@${BOT_ID}> stats (me|channel)`, `i`))) {
+      let blocks
+      switch (context[1]) {
+        case `me`:
+          const usMa = getMa(event.user)
+          if (usMa === undefined || usMa.ma == undefined) { break }
+          const usMaStats = maStats(event.user, usMa.ma)
+          blocks = userMaBlocks(event.user, usMaStats, usMa.watching)
+          await say({blocks})
+          break
+        case `channel`:
+          const chMa = getMa(event.channel)
+          if (chMa === undefined || chMa.ma == undefined) { break }
+          const chMaStats = maStats(event.channel, chMa.ma)
+          blocks = channelMaBlocks(event.channel, chMaStats, chMa.watching)
+          await say({blocks: blocks as SayArguments})
+          break
+        default:
+          console.error(msg = 'could not get status. check your command?', event)
+          await say(msg)
+      }
+      return
     }
 
     if (msg.length === 0) {

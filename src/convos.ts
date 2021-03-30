@@ -1,27 +1,7 @@
 import { GenericMessageEvent } from '@slack/bolt'
 import MA, { MovingAverage } from './ma'
 import app from './server'
-
-import { AirtablePlusPlus } from 'airtable-plusplus'
-//import { AirtablePlus } from 'airtable-plus'
-
-
-const AIRTABLE_API_BASE = process.env.AIRTABLE_API_BASE ?? ''
-const AIRTABLE_API_KEY  = process.env.AIRTABLE_API_KEY  ?? ''
-const AIRTABLE_API_NAME = process.env.AIRTABLE_API_NAME ?? ''
-
-if  (AIRTABLE_API_BASE === ''
-  || AIRTABLE_API_KEY === ''
-  || AIRTABLE_API_NAME === '') {
-  throw new Error('missing airtable environment variables')
-}
-
-//const airtable = new AirtablePlus
-const airtable = new AirtablePlusPlus({
-  baseId:    AIRTABLE_API_BASE,
-  apiKey:    AIRTABLE_API_KEY,
-  tableName: AIRTABLE_API_NAME,
-})
+import { airtable } from './api'
 
 
 export const MA_INTERVAL = process.env.MA_INTERVAL
@@ -45,7 +25,7 @@ export type MaPool = {
 export const maPool: MaPool = {}
 
 export function getMa(chId: string) {
-  if (typeof chId !== 'string') { throw new Error(`invalid channel id '${chId}'`) }
+  if (typeof chId !== 'string') { throw new Error(`invalid slack id '${chId}'`) }
   if (!maPool[chId]) {
     maPool[chId] = {
       ma: MA(MA_INTERVAL),
@@ -59,7 +39,9 @@ export function getMa(chId: string) {
 
 
 export async function pushMas(mas: MaPool, now: Date | number) {
+  //if (initialPull === true) { return }
   for (const [chId, chMa] of Object.entries(mas)) {
+    if (chMa.watching === false) { console.log('not watching', chId); continue }
     try { // FIXME: this should happen in bulk
       chMa.ma.push(now, chMa.iMsgs)
       chMa.oMsgs += chMa.iMsgs
@@ -88,7 +70,9 @@ export async function pullMas(mas: MaPool) {
           parseFloat(_ma.fields.variance  as string),
           parseFloat(_ma.fields.deviation as string),
           parseFloat(_ma.fields.forecast  as string),
+          Date.now(),
         ),}
+      //console.table(_ma.fields)
       //console.log(maPool[_ma.fields.slack_id as string], _ma.fields)
     } catch (e) {
       console.error(e)
@@ -126,15 +110,18 @@ export function masStats(mas: MaPool) {
 
 
 app.message(/./, async ({ message, say, logger }) => {
-  if ('user' in message) { // Not all messages have a user FIXME
+  if ('user' in message && message.user !== undefined) { // Not all messages have a user FIXME
     const _message = message as GenericMessageEvent
     const thread_ts = _message.thread_ts || _message.ts
     //logger.info('❗ user message ❗', message)
 
     const chId = message.channel
-    const chMa = getMa(chId)
+    const chMa = getMa(chId)         // a moving average for a user
+    const usMa = getMa(message.user) // a moving average for a channel
     if (typeof chMa === 'undefined') { throw new Error(`undefined maPool '${chId}'`) }
+    if (typeof usMa === 'undefined') { throw new Error(`undefined maPool '${message.user}'`) }
     chMa.iMsgs += 1
+    usMa.iMsgs += 1
   }
 })
 
