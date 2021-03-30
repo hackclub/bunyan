@@ -17,13 +17,17 @@ const USER_IDS = {
 }
 
 const MSGS = {
-  joinChannel: `:wave: hi! :wave: i'm a bot built by <@${USER_IDS.zrl}> and <@${USER_IDS.zfogg}> that streams channel activity to <#${BOT_CHID}> so people can easily discover new channels.
+  joinChannel: `:wave: hi! :wave: i'm a bot built by <@${USER_IDS.zrl}> and revamped by <@${USER_IDS.zfogg}> that streams channel activity to <#${BOT_CHID}> so people can easily discover new channels. :canadaparrot:
 
 don't want your channel (or your account) to be part of this? that's ok! just type \`<@${BOT_ID}> disable me\` to have me ignore all of your messages or \`<@${BOT_ID}> disable channel\` to have me ignore this whole channel.
 
 if you want to re-enable streaming, you can type \`<@${BOT_ID}> enable me\` or \`<@${BOT_ID}> enable channel\` and if you want to check whether i'm streaming, you can type \`<@${BOT_ID}> status me\` or \`<@${BOT_ID}> status channel\`.
 
-i'll never stream private messages, group chats, or private channels. message <@${USER_IDS.zrl}> or <@${USER_IDS.zfogg}> if you have any questions. happy hacking!`,
+send the message \`<@${BOT_ID}> stats me\` or \`<@${BOT_ID}> stats channel\` to see information about yourself or the channel you're in. you can find channel info on this bot's home tab! (click my username 😎).
+
+i'll never stream private messages, group chats, or private channels. message <@${USER_IDS.zrl}> or <@${USER_IDS.zfogg}> if you have any questions. happy hacking!
+
+you can find me at \`https://github.com/hackclub/sb2\`!`,
 
   disableMe: `i will now ignore your messages`,
   enableMe:  `i will now stream your messages`,
