@@ -40,16 +40,18 @@ export function getMa(chId: string) {
 
 export async function pushMas(mas: MaPool, now: Date | number) {
   //if (initialPull === true) { return }
+  const upsertData = []
   for (const [chId, chMa] of Object.entries(mas)) {
     if (chMa.watching === false) { console.log('not watching', chId); continue }
+    chMa.ma.push(now, chMa.iMsgs)
+    chMa.oMsgs += chMa.iMsgs
+    chMa.iMsgs = 0
+    const stats = maStats(chId, chMa.ma)
+    upsertData.push({ watching: chMa.watching, ...stats })
+  }
+  for (let i = 0; i < upsertData.length; i += 10) {
     try { // FIXME: this should happen in bulk
-      chMa.ma.push(now, chMa.iMsgs)
-      chMa.oMsgs += chMa.iMsgs
-      chMa.iMsgs = 0
-      const stats = maStats(chId, chMa.ma)
-      //delete stats.id // FIXME
-      const upsertData = { watching: chMa.watching, ...stats }
-      await airtable.upsert(`slack_id`, upsertData)
+      await airtable.upsert(`slack_id`, upsertData.slice(i, i+10))
     } catch (e) {
       console.error(e)
     }
