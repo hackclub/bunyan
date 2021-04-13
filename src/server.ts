@@ -35,7 +35,8 @@ if (ENV.NODE_ENV === 'development') {
 appOptions.receiver = new ExpressReceiver({ signingSecret: ENV.SIGNING_SECRET ?? '' })
 
 const app = new App(appOptions)
-app.use(cors())
+
+appOptions.receiver.app.use(cors())
 
 export const receiver = appOptions.receiver
 
