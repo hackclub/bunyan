@@ -2,6 +2,7 @@ import { App, LogLevel, SocketModeReceiver, ExpressReceiver } from '@slack/bolt'
 import fs from 'fs'
 import util from 'util'
 import path from 'path'
+import cors from 'cors'
 
 
 const writeFile = util.promisify(fs.writeFile)
@@ -34,6 +35,7 @@ if (ENV.NODE_ENV === 'development') {
 appOptions.receiver = new ExpressReceiver({ signingSecret: ENV.SIGNING_SECRET ?? '' })
 
 const app = new App(appOptions)
+app.use(cors())
 
 export const receiver = appOptions.receiver
 
