@@ -1,17 +1,18 @@
 import app, { receiver } from './server'
 import { Request, Response, NextFunction } from 'express'
 import { maPool, masStats, maStats } from './convos'
+import cors from 'cors'
 
 import { AirtablePlusPlus } from 'airtable-plusplus'
 //import { AirtablePlus } from 'airtable-plus'
 
 
-receiver.router.get(`/api/convos`, (req: Request, res: Response, next: NextFunction) => {
+receiver.router.get(`/api/convos`, cors(), (req: Request, res: Response, next: NextFunction) => {
   res.json(masStats(maPool))
 })
 
 
-receiver.router.get(`/api/convo/:id`, (req: Request, res: Response, next: NextFunction) => {
+receiver.router.get(`/api/convo/:id`, cors(), (req: Request, res: Response, next: NextFunction) => {
   const maId = req.params.id
   if (maId === undefined) {
     res.status(500).json({err: {code: 500, message: `resource is undefined`}})
