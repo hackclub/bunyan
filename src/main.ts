@@ -33,6 +33,6 @@ async function loopPushMas() {
 
   //console.table(masStats(maPool))
   for (const maStat of masStats(maPool)) {
-    console.log(maStat)
+    console.log(JSON.stringify(maStat))
   }
 }
