@@ -11,10 +11,10 @@ export default async function main() {
   })
   console.log(`⚡️ Bolt app is running on http://${HOST}:${PORT}/ in mode='${NODE_ENV}'!`)
 
-  console.log('getting all EMAs')
+  //console.log('getting all EMAs')
   const allEmas = await prisma.movingAverage.findMany()
-  console.table(allEmas)
-  console.log('GOT all EMAs')
+  //console.table(allEmas)
+  //console.log('GOT all EMAs')
 
   await pullMas(maPool)
   await loopPushMas()
@@ -31,5 +31,8 @@ async function loopPushMas() {
     console.error(e)
   }
 
-  console.table(masStats(maPool))
+  //console.table(masStats(maPool))
+  for (const maStat of masStats(maPool)) {
+    console.log(maStat)
+  }
 }
