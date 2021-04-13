@@ -6,9 +6,10 @@ import { airtable } from './api'
 
 export const MA_INTERVAL = process.env.MA_INTERVAL
   ? parseInt(process.env.MA_INTERVAL, 10)
-  : 1000 * 10 * 1  // 10 seconds
+  //: 1000 * 10 * 1  // 10 seconds
   //: 1000 * 30 * 1  // 30 seconds
   //: 1000 * 60 * 1  // one minute
+  : 1000 * 60 * 5  // five minutes
   //: 1000 * 60 * 30 // thirty minutes
 
 
