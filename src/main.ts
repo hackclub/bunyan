@@ -1,4 +1,4 @@
-import app from './server'
+import app, { prisma } from './server'
 import {maPool, pushMas, pullMas, masStats, MA_INTERVAL} from './convos'
 import './commands'
 
@@ -10,6 +10,11 @@ export default async function main() {
     port: (PORT ? parseInt(PORT) : 3000),
   })
   console.log(`⚡️ Bolt app is running on http://${HOST}:${PORT}/ in mode='${NODE_ENV}'!`)
+
+  console.log('getting all EMAs')
+  const allEmas = await prisma.movingAverage.findMany()
+  console.table(allEmas)
+  console.log('GOT all EMAs')
 
   await pullMas(maPool)
   await loopPushMas()

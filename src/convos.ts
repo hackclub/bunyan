@@ -1,15 +1,14 @@
 import { GenericMessageEvent } from '@slack/bolt'
 import MA, { MovingAverage } from './ma'
-import app from './server'
-import { airtable } from './api'
+import app, { prisma } from './server'
 
 
 export const MA_INTERVAL = process.env.MA_INTERVAL
   ? parseInt(process.env.MA_INTERVAL, 10)
-  //: 1000 * 10 * 1  // 10 seconds
+  : 1000 * 10 * 1  // 10 seconds
   //: 1000 * 30 * 1  // 30 seconds
   //: 1000 * 60 * 1  // one minute
-  : 1000 * 60 * 5  // five minutes
+  //: 1000 * 60 * 5  // five minutes
   //: 1000 * 60 * 30 // thirty minutes
 
 
@@ -48,11 +47,16 @@ export async function pushMas(mas: MaPool, now: Date | number) {
     chMa.oMsgs += chMa.iMsgs
     chMa.iMsgs = 0
     const stats = maStats(chId, chMa.ma)
-    upsertData.push({ watching: chMa.watching, ...stats })
-  }
-  for (let i = 0; i < upsertData.length; i += 10) {
+    const upsertRow = { watching: chMa.watching, ...stats }
+    upsertData.push(upsertRow)
     try { // FIXME: this should happen in bulk
-      await airtable.upsert(`slack_id`, upsertData.slice(i, i+10))
+      await prisma.movingAverage.upsert({
+        where: {
+          slack_id: chId,
+        },
+        create: upsertRow,
+        update: upsertRow,
+      })
     } catch (e) {
       console.error(e)
     }
@@ -60,23 +64,21 @@ export async function pushMas(mas: MaPool, now: Date | number) {
 }
 
 export async function pullMas(mas: MaPool) {
-  const _mas = await airtable.read()
+  const _mas = await prisma.movingAverage.findMany()
   for (const _ma of _mas) {
     try {
       const __ma = MA(MA_INTERVAL)
-      maPool[_ma.fields.slack_id as string] = {
+      maPool[_ma.slack_id] = {
         iMsgs: 0,
         oMsgs: 0,
-        watching: _ma.fields.watching as boolean,
+        watching: _ma.watching,
         ma: MA(MA_INTERVAL).create(
-          parseFloat(_ma.fields.average   as string),
-          parseFloat(_ma.fields.variance  as string),
-          parseFloat(_ma.fields.deviation as string),
-          parseFloat(_ma.fields.forecast  as string),
+          _ma.average.toNumber(),
+          _ma.variance.toNumber(),
+          _ma.deviation.toNumber(),
+          _ma.forecast.toNumber(),
           Date.now(),
         ),}
-      //console.table(_ma.fields)
-      //console.log(maPool[_ma.fields.slack_id as string], _ma.fields)
     } catch (e) {
       console.error(e)
     }

@@ -1,0 +1,13 @@
+-- CreateTable
+CREATE TABLE "MovingAverage" (
+    "id" TEXT NOT NULL,
+    "watching" BOOLEAN NOT NULL DEFAULT true,
+    "created" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "modified" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "average" DECIMAL(65,30) NOT NULL DEFAULT 0,
+    "variance" DECIMAL(65,30) NOT NULL DEFAULT 0,
+    "deviation" DECIMAL(65,30) NOT NULL DEFAULT 0,
+    "forecast" DECIMAL(65,30) NOT NULL DEFAULT 0,
+
+    PRIMARY KEY ("id")
+);

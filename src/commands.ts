@@ -1,7 +1,6 @@
 import { GenericMessageEvent, SayArguments } from '@slack/bolt'
-import app from './server'
+import app, { prisma } from './server'
 import { maPool, masStats, maStats, getMa } from './convos'
-import { airtable } from './api'
 import { channelMaBlocks, userMaBlocks } from './home'
 
 
@@ -43,14 +42,19 @@ you can find me at \`https://github.com/hackclub/sb2\`!`,
 }
 
 
-// {{{ FIXME: let's use Redis or Airtable for all of this
 async function setWatching(id: string, onOff: boolean) {
   const ma = maPool[id]
   if (!(id in maPool) || typeof ma === 'undefined') {
     throw new Error(`resource with id '${id}' is unknown`)
   }
-  try {
-    await airtable.upsert(`slack_id`, {slack_id: id, watching: onOff})
+  try { // FIXME: this should happen in bulk
+    await prisma.movingAverage.upsert({
+      where: {
+        slack_id: id,
+      },
+      create: { slack_id: id, watching: onOff },
+      update: {               watching: onOff },
+    })
   } catch (e) {
     console.error(e)
   }
@@ -60,7 +64,6 @@ async function setWatching(id: string, onOff: boolean) {
 async function statusWatching(id: string) {
   return maPool[id]?.watching
 }
-// }}}
 
 
 //app.message(RegExp(`^<@${BOT_ID}> help`, `i`), async ({ message, client, logger, context }) => {

@@ -8,6 +8,14 @@ import './server'
 import './api'
 import './home'
 
-import main from './main'; main()
+import main from './main'
+import { prisma } from './server'
+main()
+  .catch((e) => {
+    throw e
+  })
+  .finally(() => {
+    prisma.$disconnect()
+  })
 
 export default {}
