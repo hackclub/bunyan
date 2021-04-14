@@ -1,4 +1,6 @@
 /node_modules
+/dist
+.envrc
 
 # sb1 is the og streambot for reference
 /sb1
