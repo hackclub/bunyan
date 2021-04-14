@@ -60,3 +60,9 @@ endpoints:
 * [GET /api/convos/:id](https://streamboot-bot.herokuapp.com/api/convo/C01RNH6K9JS) - grab a single resource
 
 P.S. these endpoints are temporary and literally running on my personal laptop behind cloudlfare
+
+## local development
+
+You can configure your local keys with direnv or dotenv (included). Just make use of the example direnv file.
+
+If using direnv, make sure to `brew install direnv` (or whatever your OS does) & initialize in your .bashrc.
