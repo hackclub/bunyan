@@ -1,5 +1,5 @@
 -- CreateView
-CREATE VIEW "five_min_ema_view" (
+CREATE VIEW "five_min_ema_view" AS
     SELECT
         COUNT(*),
         date_trunc('hour', created) + (
@@ -9,5 +9,3 @@ CREATE VIEW "five_min_ema_view" (
         "MovingAverage"
     GROUP BY
         ten_min_timestamp;
-
-);
