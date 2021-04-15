@@ -4,6 +4,16 @@ import { maPool, masStats, maStats } from './convos'
 import cors from 'cors'
 
 
+receiver.router.get(`/`, (req: Request, res: Response, next: NextFunction) => {
+  res.redirect('https://github.com/hackclub/sb2')
+})
+
+
+receiver.router.get(`/demo`, (req: Request, res: Response, next: NextFunction) => {
+  res.sendFile('../public/demo.html')
+})
+
+
 receiver.router.get(`/api/convos`, cors(), (req: Request, res: Response, next: NextFunction) => {
   res.json(masStats(maPool))
 })
