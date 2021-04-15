@@ -2,6 +2,7 @@ import app, { prisma, receiver } from './server'
 import { Request, Response, NextFunction } from 'express'
 import { maPool, masStats, maStats } from './convos'
 import cors from 'cors'
+import path from 'path'
 
 
 receiver.router.get(`/`, (req: Request, res: Response, next: NextFunction) => {
@@ -9,8 +10,14 @@ receiver.router.get(`/`, (req: Request, res: Response, next: NextFunction) => {
 })
 
 
-receiver.router.get(`/demo`, (req: Request, res: Response, next: NextFunction) => {
-  res.sendFile('../public/demo.html')
+receiver.router.get(`/demo`, cors(), (req: Request, res: Response, next: NextFunction) => {
+  console.log(path.join(__dirname,'../public/demo.html'))
+  res.sendFile(path.join(__dirname,'../public/demo.html'))
+})
+
+receiver.router.get('/api/demo', async (req: Request, res: Response, next: NextFunction) => {
+  const data = await prisma.movingAverage.findMany()
+  res.json(data)
 })
 
 receiver.router.get(`/api/demo`, async (req: Request, res: Response, next: NextFunction) => {
