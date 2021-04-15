@@ -1,4 +1,4 @@
-import app, { receiver } from './server'
+import app, { prisma, receiver } from './server'
 import { Request, Response, NextFunction } from 'express'
 import { maPool, masStats, maStats } from './convos'
 import cors from 'cors'
@@ -11,6 +11,11 @@ receiver.router.get(`/`, (req: Request, res: Response, next: NextFunction) => {
 
 receiver.router.get(`/demo`, (req: Request, res: Response, next: NextFunction) => {
   res.sendFile('../public/demo.html')
+})
+
+receiver.router.get(`/api/demo`, async (req: Request, res: Response, next: NextFunction) => {
+  const results = await prisma.fiveMinEmaView.findMany({})
+  res.json(results)
 })
 
 
