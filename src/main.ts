@@ -31,8 +31,16 @@ async function loopPushMas() {
     console.error(e)
   }
 
-  //console.table(masStats(maPool))
+  const stats = []
   for (const maStat of masStats(maPool)) {
-    console.log(JSON.stringify(maStat))
+    if (parseFloat(maStat.average) > 0) {
+      stats.push(maStat)
+    }
   }
+  if (stats.length > 0) {
+    console.log(stats.length, 'stats')
+    console.table(stats)
+  }
+
+  //console.table(masStats(maPool))
 }

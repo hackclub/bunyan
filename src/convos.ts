@@ -27,6 +27,11 @@ export const maPool: MaPool = {}
 export function getMa(chId: string) {
   if (typeof chId !== 'string') { throw new Error(`invalid slack id '${chId}'`) }
   if (!maPool[chId]) {
+    prisma.slackResource.upsert({
+      where: { id: chId },
+      create: { id: chId },
+      update: {  },
+    })
     maPool[chId] = {
       ma: MA(MA_INTERVAL),
       iMsgs: 0,
@@ -47,41 +52,64 @@ export async function pushMas(mas: MaPool, now: Date | number) {
     chMa.oMsgs += chMa.iMsgs
     chMa.iMsgs = 0
     const stats = maStats(chId, chMa.ma)
-    const upsertRow = { watching: chMa.watching, ...stats }
+    const upsertRow = { ...stats }
     upsertData.push(upsertRow)
-    try { // FIXME: this should happen in bulk
-      await prisma.movingAverage.upsert({
-        where: {
-          slack_id: chId,
-        },
-        create: upsertRow,
-        update: upsertRow,
+  }
+  try {
+    await Promise.all(
+      upsertData.map(async row => {
+        await prisma.slackResource.upsert({
+          where:  { id: row.slack_id },
+          create: { id: row.slack_id },
+          update: {  },
+        })
+        await prisma.movingAverage.create({data: row,})
       })
-    } catch (e) {
-      console.error(e)
-    }
+    )
+  } catch (e) {
+    console.error(e)
   }
 }
 
 export async function pullMas(mas: MaPool) {
-  const _mas = await prisma.movingAverage.findMany()
+
+  const _mas = await prisma.movingAverage.findMany({
+    include: {
+      slack_resource: true,
+    },
+    orderBy: {
+      created: 'desc',
+    },
+    take: 1,
+  })
+
   for (const _ma of _mas) {
     try {
       const __ma = MA(MA_INTERVAL)
       maPool[_ma.slack_id] = {
         iMsgs: 0,
         oMsgs: 0,
-        watching: _ma.watching,
+        watching: _ma.slack_resource.watching,
         ma: MA(MA_INTERVAL).create(
           _ma.average.toNumber(),
           _ma.variance.toNumber(),
           _ma.deviation.toNumber(),
           _ma.forecast.toNumber(),
-          Date.now(),
+          new Date(_ma.slack_resource.updated).getTime(),
         ),}
     } catch (e) {
       console.error(e)
     }
+  }
+
+  const slackResources = await prisma.slackResource.findMany({
+    select: {
+      id: true,
+    }
+  })
+
+  for (const _sa of slackResources) {
+    getMa(_sa.id)
   }
 }
 

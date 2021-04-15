@@ -11,8 +11,11 @@ import './home'
 import main from './main'
 import { prisma } from './server'
 main()
-  .finally(() => {
-    prisma.$disconnect()
+  .catch(e => {
+    throw e
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
   })
 
 export default {}

@@ -40,4 +40,8 @@ const app = new App(appOptions)
 
 export const receiver = appOptions.receiver
 
+export const webClient = async (key: string, _args: any) => {
+  return app.client[key]({token: appOptions.token, ..._args })
+}
+
 export default app

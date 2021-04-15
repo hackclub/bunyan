@@ -48,12 +48,10 @@ async function setWatching(id: string, onOff: boolean) {
     throw new Error(`resource with id '${id}' is unknown`)
   }
   try { // FIXME: this should happen in bulk
-    await prisma.movingAverage.upsert({
-      where: {
-        slack_id: id,
-      },
-      create: { slack_id: id, watching: onOff },
-      update: {               watching: onOff },
+    await prisma.slackResource.upsert({
+      where:  { id, },
+      create: { id, watching: onOff },
+      update: {     watching: onOff },
     })
   } catch (e) {
     console.error(e)
