@@ -8,21 +8,28 @@ datasource db {
 }
 
 model MovingAverage {
-  id             Int            @id @default(autoincrement())
-  slack_resource SlackResource  @relation(fields: [slack_id], references: [id])
+  created        DateTime      @default(now())
+  average        Decimal       @default(0)
+  variance       Decimal       @default(0)
+  deviation      Decimal       @default(0)
+  forecast       Decimal       @default(0)
   slack_id       String
-  created        DateTime       @default(now())
-  updated        DateTime       @default(now()) @updatedAt
-  average        Decimal        @default(0)
-  variance       Decimal        @default(0)
-  deviation      Decimal        @default(0)
-  forecast       Decimal        @default(0)
+  id             Int           @id @default(autoincrement())
+  updated        DateTime      @default(now()) @updatedAt
+  slack_resource SlackResource @relation(fields: [slack_id], references: [id])
 }
 
 model SlackResource {
-  id        String           @id
-  created   DateTime         @default(now())
-  updated   DateTime         @default(now()) @updatedAt
-  watching  Boolean          @default(true)
-  averages  MovingAverage[]
+  id       String          @id
+  created  DateTime        @default(now())
+  updated  DateTime        @default(now()) @updatedAt
+  watching Boolean         @default(true)
+  averages MovingAverage[]
+}
+
+model FiveMinEmaView {
+  id                Int       @id @default(autoincrement())
+  slack_id          String
+  average           Decimal
+  ten_min_timestamp DateTime
 }
