@@ -5,8 +5,14 @@
   <meta charset="UTF-8">
   <title></title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.1.0/dist/chart.min.js"></script>
+
+  <!-- For timestamps -->
   <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.1"></script>
+
+  <!-- For zooming & panning -->
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@next"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
 
@@ -14,6 +20,10 @@
       font-family: 'Lobster', cursive;
       position: relative;
       font-size: 5em;
+    }
+
+    canvas {
+      max-height: 60vh;
     }
 
     .header-container {
@@ -86,28 +96,46 @@
     movingAverages: [],
     updatedAt: null
   }
-  var chartOptions = {}
+
   var chart
+  var chartOptions = {}
+
+  const endpoint = 'http://localhost:3001/api/demo'
+
+  const lavalampColors = [
+    { r: 236, g: 9, b: 48 },
+    { r: 205, g: 84, b: 147 },
+    { r: 96, g: 20, b: 162 },
+    { r: 96, g: 20, b: 162 },
+    { r: 96, g: 20, b: 162 },
+    { r: 96, g: 20, b: 162 },
+    { r: 96, g: 20, b: 162 },
+    { r: 96, g: 20, b: 162 },
+    { r: 96, g: 20, b: 162 },
+  ]
+  function rgba(c, a) {
+    return `rgba(${[c.r, c.g, c.b, a].join(',')})`
+  }
 
   function run() {
     let success = false
-    fetch('http://localhost:3001/api/demo')
+    fetch(endpoint)
       .then(r =>
         r.json()
       ).then(movingAverages => {
         if (movingAverages) {
           data.updatedAt = Date.now()
-          data.movingAverages = {}
+          data.rawData = movingAverages
+          data.channelData = {}
           movingAverages.filter(c => c.slack_id[0] === 'C').forEach(ma => {
-            if (!data.movingAverages[ma['slack_id']]) {
-              data.movingAverages[ma['slack_id']] = []
+            if (!data.channelData[ma['slack_id']]) {
+              data.channelData[ma['slack_id']] = []
             }
-            data.movingAverages[ma.slack_id].push({
-              y: Math.exp(ma.average),
-              x: ma.created
+            data.channelData[ma.slack_id].push({
+              y: Math.min(Math.exp(ma.average), 50),
+              x: ma.ten_min_timestamp
             })
           })
-          console.log(data.movingAverages)
           success = true
         }
       }).finally(() => {
@@ -122,8 +150,8 @@
 
         const resultEl = document.querySelector('.results')
         const dataEl = document.querySelector('.raw-data')
-        if (data.movingAverages) {
-          // find or init the canvas
+        if (data.channelData) {
+          // find or init the canvas + graph
           if (!document.querySelector('canvas')) {
             const el = document.createElement('canvas')
             el.width = 400
@@ -137,88 +165,62 @@
                   time: {
                     unit: 'minute'
                   }
+                },
+                y: {
+                  type: 'logarithmic'
+                }
+              },
+              animations: {
+                tension: {
+                  duration: 3000,
+                  easing: 'linear',
+                  from: 1,
+                  to: 0.5,
+                  loop: true
+                }
+              },
+              plugins: {
+                zoom: {
+                  pan: {
+                    enabled: true,
+                    mode: 'x'
+                  },
+                  zoom: {
+                    enabled: true,
+                    mode: 'x',
+                  }
                 }
               }
-              // animations: {
-              //   tension: {
-              //     duration: 1000,
-              //     easing: 'linear',
-              //     from: 1,
-              //     to: 0,
-              //     loop: true
-              //   }
-              // },
             }
             const ctx = el.getContext('2d')
             datasets: [{
               label: `C0266FRGV`,
-              data: data.movingAverages['C0266FRGV'],
+              data: data.channelData['C0266FRGV'],
               fill: true,
             }]
             chart = new Chart(ctx, chartOptions)
           }
 
-          chartOptions.data = {
-            // labels: ['Green', 'Purple', 'Orange'],
-            // datasets: data.movingAverages.forEach((key, value) => ({
-            //   label: key,
-            //   data, value
-            // }))
-            datasets: [{
-              label: `C0266FRGV`,
-              data: data.movingAverages['C0266FRGV'],
-              fill: true,
-            }]
-          }
-          chart.update()
+          // update the graph
+          chartOptions.data.datasets = []
+          Object.keys(data.channelData).forEach((channelID, index) => {
+            if (lavalampColors[index]) {
+              chartOptions.data.datasets.push({
+                label: channelID,
+                data: data.channelData[channelID],
+                fill: true,
+                fillOpacity: 0.5,
+                borderColor: rgba(lavalampColors[index], 0.8),
+                backgroundColor: rgba(lavalampColors[index], 0.3),
+                tension: 0.5,
+              })
+            }
+          })
 
-          dataEl.innerHTML = "// https://stream-bot.herokuapp.com/api/convos/\n" + JSON.stringify(data.movingAverages, null, 2)
-          ///
-          // new Chart(ctx, {
-          //   type: 'line',
-          //   data: {
-          //     labels: ['Green', 'Purple', 'Orange'],
-          //     datasets: [{
-          //       label: 'Activity score',
-          //       data: [12, 19, 3, 5, 2, 3],
-          //       backgroundColor: [
-          //         'rgba(255, 99, 132, 0.2)',
-          //         'rgba(54, 162, 235, 0.2)',
-          //         'rgba(255, 206, 86, 0.2)',
-          //         'rgba(75, 192, 192, 0.2)',
-          //         'rgba(153, 102, 255, 0.2)',
-          //         'rgba(255, 159, 64, 0.2)'
-          //       ],
-          //       borderColor: [
-          //         'rgba(255, 99, 132, 1)',
-          //         'rgba(54, 162, 235, 1)',
-          //         'rgba(255, 206, 86, 1)',
-          //         'rgba(75, 192, 192, 1)',
-          //         'rgba(153, 102, 255, 1)',
-          //         'rgba(255, 159, 64, 1)'
-          //       ],
-          //       borderWidth: 1,
-          //       tension: 0.3,
-          //     }]
-          //   },
-          //   options: {
-          //     animations: {
-          //       tension: {
-          //         duration: 1000,
-          //         easing: 'linear',
-          //         from: 1,
-          //         to: 0,
-          //         loop: true
-          //       }
-          //     },
-          //     scales: {
-          //       y: {
-          //         beginAtZero: true
-          //       }
-          //     }
-          //   }
-          // })
-          ///
+          // https://www.chartjs.org/docs/latest/developers/updates.html#preventing-animations
+          chart.update('none')
+
+          dataEl.innerHTML = `// ${endpoint}\n${JSON.stringify(data.rawData, null, 2)}`
         } else {
           resultEl.innerHTML = `⚠️ something has gone wrong`
           dataEl.innerHTML = `⚠️ something has gone wrong`
@@ -228,7 +230,7 @@
 
   run()
 
-  setInterval(run, 1000 * 15)// ever 15 seconds, update the list
+  setInterval(run, 1000 * 15) // ever 15 seconds, update the list
 </script>
 
 </html>
