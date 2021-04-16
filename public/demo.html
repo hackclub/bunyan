@@ -215,6 +215,7 @@
           // update the graph
           chartOptions.data.datasets = []
           Object.keys(data.channelData).forEach((channelID, index) => {
+            if (index < 10) {
               chartOptions.data.datasets.push({
                 label: channelID,
                 data: data.channelData[channelID].points,
@@ -224,6 +225,7 @@
                 backgroundColor: rgba(colorFromString(channelID), 0.3),
                 tension: 0.5,
               })
+            }
           })
 
           // https://www.chartjs.org/docs/latest/developers/updates.html#preventing-animations
