@@ -229,10 +229,7 @@
               })
             }
           })
-          Promise.all(channelPromises)
-
-          // https://www.chartjs.org/docs/latest/developers/updates.html#preventing-animations
-          chart.update('none')
+          Promise.all(channelPromises).then(() => chart.update('none'))
 
           dataEl.innerHTML = `// ${endpoint}\n${JSON.stringify(data.rawData, null, 2)}`
         } else {
