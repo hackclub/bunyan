@@ -13,6 +13,10 @@
   <!-- For zooming & panning -->
   <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@next"></script>
+  
+  <!-- Easy colors -->
+  <script src="https://raw.githack.com/Fooidge/PleaseJS/master/dist/Please.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
 
@@ -105,7 +109,7 @@
   const lavalampColors = [
     { r: 236, g: 9, b: 48 },
     { r: 205, g: 84, b: 147 },
-    { r: 96, g: 20, b: 162 },
+    { r: 205, g: 147, b: 84 },
     { r: 96, g: 20, b: 162 },
     { r: 96, g: 20, b: 162 },
     { r: 96, g: 20, b: 162 },
@@ -115,6 +119,9 @@
   ]
   function rgba(c, a) {
     return `rgba(${[c.r, c.g, c.b, a].join(',')})`
+  }
+  function colorFromString(string) {
+    return Please.make_color({seed: string, format: 'rgb'})[0]
   }
 
   function run() {
@@ -129,9 +136,13 @@
           data.channelData = {}
           movingAverages.filter(c => c.slack_id[0] === 'C').forEach(ma => {
             if (!data.channelData[ma['slack_id']]) {
-              data.channelData[ma['slack_id']] = []
+              data.channelData[ma['slack_id']] = {
+                score: 0,
+                points: []
+              }
             }
-            data.channelData[ma.slack_id].push({
+            data.channelData[ma.slack_id].score += Math.min(Math.exp(ma.average), 50)
+            data.channelData[ma.slack_id].points.push({
               y: Math.min(Math.exp(ma.average), 50),
               x: ma.ten_min_timestamp
             })
@@ -195,7 +206,7 @@
             const ctx = el.getContext('2d')
             datasets: [{
               label: `C0266FRGV`,
-              data: data.channelData['C0266FRGV'],
+              data: data.channelData['C0266FRGV'].points,
               fill: true,
             }]
             chart = new Chart(ctx, chartOptions)
@@ -204,17 +215,15 @@
           // update the graph
           chartOptions.data.datasets = []
           Object.keys(data.channelData).forEach((channelID, index) => {
-            if (lavalampColors[index]) {
               chartOptions.data.datasets.push({
                 label: channelID,
-                data: data.channelData[channelID],
+                data: data.channelData[channelID].points,
                 fill: true,
                 fillOpacity: 0.5,
-                borderColor: rgba(lavalampColors[index], 0.8),
-                backgroundColor: rgba(lavalampColors[index], 0.3),
+                borderColor: rgba(colorFromString(channelID), 0.8),
+                backgroundColor: rgba(colorFromString(channelID), 0.3),
                 tension: 0.5,
               })
-            }
           })
 
           // https://www.chartjs.org/docs/latest/developers/updates.html#preventing-animations
