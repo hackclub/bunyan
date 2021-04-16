@@ -16,7 +16,13 @@ receiver.router.get(`/demo`, cors(), (req: Request, res: Response, next: NextFun
 })
 
 receiver.router.get(`/api/demo`, async (req: Request, res: Response, next: NextFunction) => {
-  const results = await prisma.fiveMinEmaView.findMany()
+  const results = await prisma.fiveMinEmaView.findMany({
+    orderBy: [
+      {
+        ten_min_timestamp: 'desc'
+      }
+    ]
+  })
   res.json(results)
 })
 
