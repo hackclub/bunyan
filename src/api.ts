@@ -15,13 +15,8 @@ receiver.router.get(`/demo`, cors(), (req: Request, res: Response, next: NextFun
   res.sendFile(path.join(__dirname,'../public/demo.html'))
 })
 
-receiver.router.get('/api/demo', async (req: Request, res: Response, next: NextFunction) => {
-  const data = await prisma.movingAverage.findMany()
-  res.json(data)
-})
-
 receiver.router.get(`/api/demo`, async (req: Request, res: Response, next: NextFunction) => {
-  const results = await prisma.fiveMinEmaView.findMany({})
+  const results = await prisma.fiveMinEmaView.findMany()
   res.json(results)
 })
 
