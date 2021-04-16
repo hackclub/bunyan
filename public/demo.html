@@ -123,6 +123,13 @@
   function colorFromString(string) {
     return Please.make_color({seed: string, format: 'rgb'})[0]
   }
+  const channelStorage = {}
+  async function generateChannelName(channelID) {
+    if (!channelStorage[channelID]) {
+      channelStorage[channelID] = fetch(`/api/demo-channel-lookup/${channelID}`).then(r => r.json()).then(r => '#'+r.name)
+    }
+    return await channelStorage[channelID]
+  }
 
   function run() {
     let success = false
@@ -162,7 +169,6 @@
         const resultEl = document.querySelector('.results')
         const dataEl = document.querySelector('.raw-data')
         if (data.channelData) {
-          // find or init the canvas + graph
           if (!document.querySelector('canvas')) {
             const el = document.createElement('canvas')
             el.width = 400
@@ -204,20 +210,16 @@
               }
             }
             const ctx = el.getContext('2d')
-            datasets: [{
-              label: `C0266FRGV`,
-              data: data.channelData['C0266FRGV'].points,
-              fill: true,
-            }]
             chart = new Chart(ctx, chartOptions)
           }
 
           // update the graph
           chartOptions.data.datasets = []
-          Object.keys(data.channelData).forEach((channelID, index) => {
+
+          const channelPromises = Object.keys(data.channelData).map(async (channelID, index) => {
             if (index < 10) {
               chartOptions.data.datasets.push({
-                label: channelID,
+                label: await generateChannelName(channelID),
                 data: data.channelData[channelID].points,
                 fill: true,
                 fillOpacity: 0.5,
@@ -227,6 +229,7 @@
               })
             }
           })
+          Promise.all(channelPromises)
 
           // https://www.chartjs.org/docs/latest/developers/updates.html#preventing-animations
           chart.update('none')

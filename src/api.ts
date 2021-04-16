@@ -26,6 +26,22 @@ receiver.router.get(`/api/demo`, async (req: Request, res: Response, next: NextF
   res.json(results)
 })
 
+receiver.router.get(`/api/demo-channel-lookup/:id`, async (req: Request, res: Response, next: NextFunction) => {
+  const channel = req.params.id
+  if (channel === undefined) {
+    res.status(500).json({err: {code: 500, message: `resource is undefined`}})
+  } else {
+    try {
+      const result = await app.client.conversations.info({channel, token: process.env.BOT_TOKEN})
+      const name:string = result.channel.name
+      res.json({name})
+    } catch (e) {
+      console.log(e)
+      res.status(404).json({err: {code:404, message: `channel with ID '${req.query.id}' not found`}})
+    }
+  }
+})
+
 
 receiver.router.get(`/api/convos`, cors(), (req: Request, res: Response, next: NextFunction) => {
   res.json(masStats(maPool))
