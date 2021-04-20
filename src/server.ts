@@ -9,7 +9,7 @@ export const prisma = new PrismaClient()
 
 const writeFile = util.promisify(fs.writeFile)
 
-const ENV = process.env
+export const ENV = process.env
 
 const appOptions: any = {
   signingSecret: ENV.SIGNING_SECRET,

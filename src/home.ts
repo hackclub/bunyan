@@ -1,20 +1,11 @@
 import app from './server'
 import { maPool, pushMas, pullMas, maStats, MaStat } from './convos'
+import { sortedMas, nonzeroMas } from './util'
 
 
 app.event('app_home_opened', async ({ event, client, context }) => {
-  const sortedMaEntries = Object.entries(maPool)
-    .sort((a, b) => {
-      if (a[1].ma.average() < b[1].ma.average()) {
-        return 1
-      } else if (a[1].ma.average() > b[1].ma.average()) {
-        return -1
-      } else {
-        return 0
-      }
-    })
   const emaBlocks = []
-  for (const [chId, chMa] of sortedMaEntries) {
+  for (const [chId, chMa] of sortedMas(maPool)) {
     if (chId.startsWith('U')) { continue }
     const maStat = maStats(chId, chMa.ma)
     emaBlocks.push(...channelMaBlocks(chId, maStat, chMa.watching))
