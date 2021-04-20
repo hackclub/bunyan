@@ -12,7 +12,7 @@ export default async function main() {
   console.log(`⚡️ Bolt app is running on http://${HOST}:${PORT}/ in mode='${NODE_ENV}'!`)
 
   //console.log('getting all EMAs')
-  const allEmas = await prisma.movingAverage.findMany()
+  //const allEmas = await prisma.movingAverage.findMany()
   //console.table(allEmas)
   //console.log('GOT all EMAs')
 

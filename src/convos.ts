@@ -5,9 +5,9 @@ import app, { prisma } from './server'
 
 export const MA_INTERVAL = process.env.MA_INTERVAL
   ? parseInt(process.env.MA_INTERVAL, 10)
-  : 1000 * 10 * 1  // 10 seconds
+  //: 1000 * 10 * 1  // 10 seconds
   //: 1000 * 30 * 1  // 30 seconds
-  //: 1000 * 60 * 1  // one minute
+  : 1000 * 60 * 1  // one minute
   //: 1000 * 60 * 5  // five minutes
   //: 1000 * 60 * 30 // thirty minutes
 
@@ -73,34 +73,36 @@ export async function pushMas(mas: MaPool, now: Date | number) {
 
 export async function pullMas(mas: MaPool) {
 
-  const _mas = await prisma.movingAverage.findMany({
-    include: {
-      slack_resource: true,
-    },
-    orderBy: {
-      created: 'desc',
-    },
-    take: 1,
-  })
+  //const _mas = await prisma.movingAverage.findMany({
+    //include: {
+      //slack_resource: true,
+    //},
+    //orderBy: {
+      //created: 'desc',
+    //},
+    //distinct: [
+      //'slack_id',
+    //],
+  //})
 
-  for (const _ma of _mas) {
-    try {
-      const __ma = MA(MA_INTERVAL)
-      maPool[_ma.slack_id] = {
-        iMsgs: 0,
-        oMsgs: 0,
-        watching: _ma.slack_resource.watching,
-        ma: MA(MA_INTERVAL).create(
-          _ma.average.toNumber(),
-          _ma.variance.toNumber(),
-          _ma.deviation.toNumber(),
-          _ma.forecast.toNumber(),
-          new Date(_ma.slack_resource.updated).getTime(),
-        ),}
-    } catch (e) {
-      console.error(e)
-    }
-  }
+  //for (const _ma of _mas) {
+    //try {
+      //const __ma = MA(MA_INTERVAL)
+      //maPool[_ma.slack_id] = {
+        //iMsgs: 0,
+        //oMsgs: 0,
+        //watching: _ma.slack_resource.watching,
+        //ma: MA(MA_INTERVAL).create(
+          //_ma.average.toNumber(),
+          //_ma.variance.toNumber(),
+          //_ma.deviation.toNumber(),
+          //_ma.forecast.toNumber(),
+          //new Date(_ma.slack_resource.updated).getTime(),
+        //),}
+    //} catch (e) {
+      //console.error(e)
+    //}
+  //}
 
   const slackResources = await prisma.slackResource.findMany({
     select: {
