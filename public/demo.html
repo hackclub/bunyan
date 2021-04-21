@@ -143,7 +143,6 @@
           data.channelData = {}
           movingAverages
             .filter(c => c.slack_id[0] === 'C')
-            .filter(c => { let x = moment(c.ten_min_timestamp).isBefore('2021-04-17'); console.log(x, c.ten_min_timestamp); return x} )
             .forEach(ma => {
             if (!data.channelData[ma['slack_id']]) {
               data.channelData[ma['slack_id']] = {
