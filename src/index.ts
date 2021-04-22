@@ -7,7 +7,7 @@ if (process.env.NODE_ENV !== 'production') {
 import './server'
 import './api'
 import './home'
-import './modal'
+import './slashcmd'
 
 import main from './main'
 import { prisma } from './server'

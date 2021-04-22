@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["orderByAggregateGroup"]
 }
 
 datasource db {
@@ -25,11 +26,4 @@ model SlackResource {
   updated  DateTime        @default(now()) @updatedAt
   watching Boolean         @default(true)
   averages MovingAverage[]
-}
-
-model FiveMinEmaView {
-  id                Int       @id @default(autoincrement())
-  slack_id          String
-  average           Decimal
-  ten_min_timestamp DateTime
 }
