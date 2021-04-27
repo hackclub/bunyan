@@ -99,7 +99,7 @@ receiver.router.get(`/api/convos/top`, cors(), async (req: Request, res: Respons
     if (tops.length < 1) {
       res.status(404).json({err: {code: 404, message: `empty resources`}})
     } else {
-      tops.sort((x, y) => { return x[arg_key].toNumber() - y[arg_key].toNumber() })
+      tops.sort((x, y) => { return y[arg_key].toNumber() - x[arg_key].toNumber() })
       res.status(200).json(tops.slice(0, arg_take))
     }
 
