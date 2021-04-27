@@ -48,10 +48,11 @@ export async function pushMas(mas: MaPool, now: Date | number) {
   const upsertData = []
   for (const [chId, chMa] of Object.entries(mas)) {
     if (chMa.watching === false) { console.log('not watching', chId); continue }
+    const stats = maStats(chId, chMa.ma, chMa.iMsgs)
+    stats.messages = chMa.iMsgs
     chMa.ma.push(now, chMa.iMsgs)
     chMa.oMsgs += chMa.iMsgs
     chMa.iMsgs = 0
-    const stats = maStats(chId, chMa.ma)
     const upsertRow = { ...stats }
     upsertData.push(upsertRow)
   }
@@ -72,37 +73,6 @@ export async function pushMas(mas: MaPool, now: Date | number) {
 }
 
 export async function pullMas(mas: MaPool) {
-
-  //const _mas = await prisma.movingAverage.findMany({
-    //include: {
-      //slack_resource: true,
-    //},
-    //orderBy: {
-      //created: 'desc',
-    //},
-    //distinct: [
-      //'slack_id',
-    //],
-  //})
-
-  //for (const _ma of _mas) {
-    //try {
-      //const __ma = MA(MA_INTERVAL)
-      //maPool[_ma.slack_id] = {
-        //iMsgs: 0,
-        //oMsgs: 0,
-        //watching: _ma.slack_resource.watching,
-        //ma: MA(MA_INTERVAL).create(
-          //_ma.average.toNumber(),
-          //_ma.variance.toNumber(),
-          //_ma.deviation.toNumber(),
-          //_ma.forecast.toNumber(),
-          //new Date(_ma.slack_resource.updated).getTime(),
-        //),}
-    //} catch (e) {
-      //console.error(e)
-    //}
-  //}
 
   const slackResources = await prisma.slackResource.findMany({
     select: { id: true, },
@@ -139,15 +109,17 @@ export type MaStat = {
   variance:  string
   deviation: string
   forecast:  string
+  messages:  string
 }
 
-export function maStats(slack_id: string, ma: MovingAverage) {
+export function maStats(slack_id: string, ma: MovingAverage, messages: number | undefined) {
   const stats: MaStat = {
     slack_id,
     average:   (ma.average()   || 0).toString(),
     variance:  (ma.variance()  || 0).toString(),
     deviation: (ma.deviation() || 0).toString(),
     forecast:  (ma.forecast()  || 0).toString(),
+    messages:  (messages       || 0).toString(),
   }
   return stats
 }
@@ -155,7 +127,7 @@ export function maStats(slack_id: string, ma: MovingAverage) {
 export function masStats(mas: MaPool) {
   const _masStats: MaStat[] = []
   for (const [chId, chMa] of Object.entries(maPool)) {
-    const stats = maStats(chId, chMa.ma)
+    const stats = maStats(chId, chMa.ma, chMa.iMsgs)
     _masStats.push(stats)
   }
   return _masStats

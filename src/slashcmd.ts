@@ -31,7 +31,7 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
 
   const chSamples = await prisma.movingAverage.groupBy({
     by: ['slack_id'],
-    sum: { average: true, },
+    sum: { average: true, messages: true },
     avg: { average: true, },
     max: { average: true, },
     count: { _all: true, },
@@ -55,6 +55,7 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
       const score_max = (Math.exp(chSamp.max.average)).toFixed(4)
       const desc = (channel as any).topic.value
       console.log({score_sum, score_avg, score_max})
+      console.log(chSamp)
       return [
         {
           type: "section",
@@ -62,7 +63,7 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
             type: "mrkdwn",
             text: [
               `<#${chSamp.slack_id || 'NULL'}>`,
-              `*#${i+1}.* _activity score:_ avg=${score_avg || -1} | max=${score_max || -1}`,
+              `*#${i+1}.* _activity score:_ avg=${score_avg || -1} | max=${score_max || -1} | messages=${chSamp.sum.messages || -1}`,
               `${desc.substring(0, 512) || ''}${desc.length > 512 ? '...' : ''}`,
             ].join('\n'),
           },

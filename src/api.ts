@@ -57,7 +57,7 @@ receiver.router.get(`/api/convo/:id`, cors(), (req: Request, res: Response, next
     res.status(404).json({err: {code: 404, message: `unaware of a resource '${maId}'`}})
   } else {
     const ma = maPool[maId]?.ma
-    const stats = maStats(maId, ma)
+    const stats = maStats(maId, ma, maPool[maId]?.iMsgs)
     //stats.average = stats.average === undefined ? 0 : stats.average // FIXME
     res.status(200).json(stats)
   }
