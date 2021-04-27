@@ -37,6 +37,7 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
     where: { // channels within the past `time`
       created: { gt: sampleTime, },
       slack_id: { startsWith: 'C', },
+      slack_resource: { watching: true, },
     },
     orderBy: {_sum: {average: 'desc', }, },
     having: { average: { avg: {gt: 0}, }, },

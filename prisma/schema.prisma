@@ -9,15 +9,16 @@ datasource db {
 }
 
 model MovingAverage {
+  id             Int           @id @default(autoincrement())
   created        DateTime      @default(now())
+  slack_id       String
+  slack_resource SlackResource @relation(fields: [slack_id], references: [id])
+  messages       Int           @default(0)
+  //reactions      Int           @default(0)
   average        Decimal       @default(0)
   variance       Decimal       @default(0)
   deviation      Decimal       @default(0)
   forecast       Decimal       @default(0)
-  slack_id       String
-  id             Int           @id @default(autoincrement())
-  updated        DateTime      @default(now()) @updatedAt
-  slack_resource SlackResource @relation(fields: [slack_id], references: [id])
 }
 
 model SlackResource {

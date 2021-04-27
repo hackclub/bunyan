@@ -105,13 +105,31 @@ export async function pullMas(mas: MaPool) {
   //}
 
   const slackResources = await prisma.slackResource.findMany({
-    select: {
-      id: true,
-    }
+    select: { id: true, },
+    where: { watching: { equals: true, }, },
   })
 
   for (const _sa of slackResources) {
-    getMa(_sa.id)
+    const _ma = await prisma.movingAverage.findFirst({
+      where: { slack_id: { equals: _sa.id, }, },
+      orderBy: { created: 'desc', },
+    })
+    if (_ma === null) { throw new Error('broken movingAverage record') }
+
+    maPool[_ma.slack_id] = {
+      iMsgs: 0,
+      oMsgs: 0,
+      watching: true,
+      ma: MA(MA_INTERVAL).create(
+        _ma.average.toNumber(),
+        _ma.variance.toNumber(),
+        _ma.deviation.toNumber(),
+        _ma.forecast.toNumber(),
+        new Date(_ma.created).getTime(),
+      ),
+    }
+
+    //getMa(_sa.id)
   }
 }
 

@@ -16,7 +16,7 @@ export type MovingAverage = {
 }
 
 
-export default function average (timespan: number) {
+export default function MA(timespan: number) {
   if (typeof timespan !== 'number') { throw new Error('must provide a timespan to the moving average constructor') }
 
   if (timespan <= 0) { throw new Error('must provide a timespan > 0 to the moving average constructor') }
