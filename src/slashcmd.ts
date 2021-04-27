@@ -50,9 +50,9 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
     .map(async (chSamp: any, i) => {
       const { channel } = await client.conversations.info({channel: chSamp.slack_id})
       //const score = (Math.exp(chMa.ma.average()) - 1).toFixed(4)
-      const score_sum = (Math.exp(chSamp.sum.average)).toFixed(4)
+      const score_sum = ((        chSamp.sum.average)).toFixed(4)
       const score_avg = (Math.exp(chSamp.avg.average)).toFixed(4)
-      const score_max = (Math.exp(chSamp.max.average)).toFixed(4)
+      const score_max = ((        chSamp.max.average)).toFixed(4)
       const desc = (channel as any).topic.value
       console.log({score_sum, score_avg, score_max})
       console.log(chSamp)
