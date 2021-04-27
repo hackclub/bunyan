@@ -92,7 +92,10 @@ receiver.router.get(`/api/convos/top`, cors(), async (req: Request, res: Respons
     const tops = await prisma.movingAverage.findMany({
       distinct: ['slack_id'],
       select: { average: true, variance: true, deviation: true, forecast: true, slack_id: true, created: true, },
-      where: {average: {not: 0}, variance: {not: 0}, deviation: {not: 0}, forecast: {not: 0}, },
+      where: {
+        slack_id: { startsWith: 'C', },
+        //average: {not: 0}, variance: {not: 0}, deviation: {not: 0}, forecast: {not: 0},
+      },
       orderBy: {created: 'desc'},
     })
 

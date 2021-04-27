@@ -6,8 +6,8 @@ import { sortedMas, nonzeroMas } from './util'
 app.event('app_home_opened', async ({ event, client, context }) => {
   const emaBlocks = []
   for (const [chId, chMa] of sortedMas(maPool)) {
-    if (chId.startsWith('U')) { continue }
-    const maStat = maStats(chId, chMa.ma)
+    if (chId.startsWith('U') || chMa.ma.average() <= 0) { continue }
+    const maStat = maStats(chId, chMa.ma, chMa.iMsgs)
     emaBlocks.push(...channelMaBlocks(chId, maStat, chMa.watching))
     emaBlocks.push({"type": "divider"})
   }
@@ -84,7 +84,7 @@ export function channelMaBlocks(slackId: string, maStat: MaStat, watching: boole
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": `*<#${slackId}>*\nAverage: *${maStat.average}*\nVariance: *${maStat.variance}*\nDeviation: *${maStat.deviation}*\nForecast: *${maStat.forecast}*`
+        "text": `*<#${slackId}>*: Average: *${Math.exp(maStat.average).toFixed(4)}* | Variance: *${Math.exp(maStat.variance).toFixed(4)}* | Deviation: *${Math.exp(maStat.deviation).toFixed(4)}* | Forecast: *${Math.exp(maStat.forecast).toFixed(4)}*`
       },
     },
 
