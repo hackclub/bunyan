@@ -50,9 +50,9 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
     .map(async (chSamp: any, i) => {
       const { channel } = await client.conversations.info({channel: chSamp.slack_id})
       //const score = (Math.exp(chMa.ma.average()) - 1).toFixed(4)
-      const score_sum = ((        chSamp.sum.average)).toFixed(4)
-      const score_avg = (Math.exp(chSamp.avg.average)).toFixed(4)
-      const score_max = ((        chSamp.max.average)).toFixed(4)
+      const score_sum = ((        chSamp.sum.average)).toFixed(2)
+      const score_avg = (Math.exp(chSamp.avg.average)).toFixed(2)
+      const score_max = ((        chSamp.max.average)).toFixed(2)
       const desc = (channel as any).topic.value
       console.log({score_sum, score_avg, score_max})
       console.log(chSamp)
@@ -62,9 +62,9 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
           text: {
             type: "mrkdwn",
             text: [
-              `<#${chSamp.slack_id || 'NULL'}>`,
-              `*#${i+1}.* _activity score:_ avg=${score_avg || -1} | max=${score_max || -1} | messages=${chSamp.sum.messages || -1}`,
-              `${desc.substring(0, 512) || ''}${desc.length > 512 ? '...' : ''}`,
+              `*#${i+1}:* <#${chSamp.slack_id || 'NULL'}> (past _${argTime}_ mins: _${chSamp.sum.messages || 0}_ messages)`,
+              `*Activity score:* _average=_${score_avg || -1} | _maximum=_${score_max || -1}`,
+              `${desc.substring(0, 512) || ''}${desc.length > 512 ? ' [...]' : ''}`, // 512 char limit
             ].join('\n'),
           },
         },
@@ -112,7 +112,7 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
           type: "mrkdwn",
           text: [
             `:wave: Hi! These are the top channels to check out right now :sparkles:`,
-            `_(since ${sampleTime})_`,
+            `_(period: since ${sampleTime})_`,
           ].join('\n')
         }
       },
