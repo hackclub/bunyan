@@ -62,8 +62,8 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
           text: {
             type: "mrkdwn",
             text: [
-              `*#${i+1}:* <#${chSamp.slack_id || 'NULL'}> (past _${argTime}_ mins: _${chSamp.sum.messages || 0}_ messages)`,
-              `*Activity score:* _average=_${score_avg || -1} | _maximum=_${score_max || -1}`,
+              `*#${i+1}:* <#${chSamp.slack_id || 'NULL'}> (past *${argTime}* mins: *${chSamp.sum.messages || 0}* messages)`,
+              `*Activity score:* average = *${score_avg || -1}* | maximum = *${score_max || -1}*`,
               `${desc.substring(0, 512) || ''}${desc.length > 512 ? ' [...]' : ''}`, // 512 char limit
             ].join('\n'),
           },
