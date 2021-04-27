@@ -6,8 +6,8 @@ import { sortedMas, nonzeroMas } from './util'
 
 
 const CHANNELS_CMD = (ENV.NODE_ENV === 'development')
-  ? '/channels-dev'
-  : '/channels'
+  ? '/top5-dev'
+  : '/top5'
 
 app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }) => {
   await ack()
