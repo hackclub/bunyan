@@ -54,8 +54,7 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
       const score_avg = (Math.exp(chSamp.avg.average)).toFixed(2)
       const score_max = ((        chSamp.max.average)).toFixed(2)
       const desc = (channel as any).topic.value
-      console.log({score_sum, score_avg, score_max})
-      console.log(chSamp)
+      const desc_lines = desc.split('\n').length // max line limit smh @anirudhb
       return [
         {
           type: "section",
@@ -64,7 +63,8 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
             text: [
               `*#${i+1}:* <#${chSamp.slack_id || 'NULL'}> (past *${argTime}* mins: *${chSamp.sum.messages || 0}* messages)`,
               `*Activity score:* average = *${score_avg || -1}* | maximum = *${score_max || -1}*`,
-              `${desc.substring(0, 512) || ''}${desc.length > 512 ? ' [...]' : ''}`, // 512 char limit
+              `${desc.substring(0, 512) || ''}${(desc.length > 512 || desc_lines > 3) ? ' [...]' : ''}`  // 512 char limit
+                .split('\n').slice(0, 3).join('\n'),
             ].join('\n'),
           },
         },
