@@ -9,6 +9,7 @@ import './api'
 import './home'
 import './slashcmd'
 import './reactions'
+import './messages'
 
 import main from './main'
 import { prisma } from './server'

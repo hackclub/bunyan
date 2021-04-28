@@ -40,6 +40,7 @@ model User {
   updated        DateTime        @default(now()) @updatedAt
   watching       Boolean         @default(true)
   reactions      Reaction[]
+  messages       Message[]
 }
 
 
@@ -49,6 +50,7 @@ model Channel {
   updated        DateTime        @default(now()) @updatedAt
   watching       Boolean         @default(true)
   reactions      Reaction[]
+  messages       Message[]
 }
 
 
@@ -71,7 +73,7 @@ model Reaction {
   user_id        String
   user           User            @relation(fields: [user_id], references: [id])
   //
-  channel_id      String
+  channel_id     String
   channel        Channel         @relation(fields: [channel_id], references: [id])
   //
   @@index([emoji_id])
@@ -79,4 +81,25 @@ model Reaction {
   @@index([emoji_id, user_id])
   @@index([channel_id])
   @@index([emoji_id, channel_id])
+}
+
+
+model Message {
+  id             Int             @id @default(autoincrement())
+  created        DateTime        @default(now())
+  //
+  user_id        String
+  user           User            @relation(fields: [user_id], references: [id])
+  //
+  channel_id     String
+  channel        Channel         @relation(fields: [channel_id], references: [id])
+  //
+  @@index([user_id])
+  @@index([channel_id])
+  @@index([user_id, channel_id])
+  //
+  content_hash   String
+  content_length Int
+  // `ts` is slack resource
+  ts             String
 }
