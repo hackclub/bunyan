@@ -76,7 +76,7 @@ export async function pullMas(mas: MaPool) {
 
   const slackResources = await prisma.slackResource.findMany({
     select: { id: true, },
-    where: { watching: { equals: true, }, },
+    //where: { watching: { equals: true, }, },
   })
 
   for (const _sa of slackResources) {

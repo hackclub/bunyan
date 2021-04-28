@@ -8,6 +8,7 @@ import './server'
 import './api'
 import './home'
 import './slashcmd'
+import './reactions'
 
 import main from './main'
 import { prisma } from './server'

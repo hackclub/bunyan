@@ -8,23 +8,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model MovingAverage {
-  id             Int           @id @default(autoincrement())
-  created        DateTime      @default(now())
-  slack_id       String
-  slack_resource SlackResource @relation(fields: [slack_id], references: [id])
-  messages       Int           @default(0)
-  //reactions      Int           @default(0)
-  average        Decimal       @default(0)
-  variance       Decimal       @default(0)
-  deviation      Decimal       @default(0)
-  forecast       Decimal       @default(0)
-}
 
 model SlackResource {
-  id       String          @id
-  created  DateTime        @default(now())
-  updated  DateTime        @default(now()) @updatedAt
-  watching Boolean         @default(true)
-  averages MovingAverage[]
+  id             String          @id
+  created        DateTime        @default(now())
+  updated        DateTime        @default(now()) @updatedAt
+  watching       Boolean         @default(true)
+  averages       MovingAverage[]
+}
+
+model MovingAverage {
+  id             Int            @id @default(autoincrement())
+  created        DateTime       @default(now())
+  messages       Int            @default(0)
+  //
+  average        Decimal        @default(0)
+  variance       Decimal        @default(0)
+  deviation      Decimal        @default(0)
+  forecast       Decimal        @default(0)
+  //
+  slack_id       String
+  slack_resource SlackResource  @relation(fields: [slack_id], references: [id])
+  //
+  @@index([slack_id])
+}
+
+
+model User {
+  id             String          @id
+  created        DateTime        @default(now())
+  updated        DateTime        @default(now()) @updatedAt
+  watching       Boolean         @default(true)
+  reactions      Reaction[]
+}
+
+
+model Channel {
+  id             String          @id
+  created        DateTime        @default(now())
+  updated        DateTime        @default(now()) @updatedAt
+  watching       Boolean         @default(true)
+  reactions      Reaction[]
+}
+
+
+model Emoji {
+  id             String          @id
+  created        DateTime        @default(now())
+  updated        DateTime        @default(now()) @updatedAt
+  watching       Boolean         @default(true)
+  reactions      Reaction[]
+}
+
+
+model Reaction {
+  id             Int             @id @default(autoincrement())
+  created        DateTime        @default(now())
+  //
+  emoji_id       String
+  emoji          Emoji           @relation(fields: [emoji_id], references: [id])
+  //
+  user_id        String
+  user           User            @relation(fields: [user_id], references: [id])
+  //
+  channel_id      String
+  channel        Channel         @relation(fields: [channel_id], references: [id])
+  //
+  @@index([emoji_id])
+  @@index([user_id])
+  @@index([emoji_id, user_id])
+  @@index([channel_id])
+  @@index([emoji_id, channel_id])
 }
