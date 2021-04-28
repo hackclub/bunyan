@@ -63,31 +63,42 @@ receiver.router.get(`/api/convo/:id`, cors(), (req: Request, res: Response, next
   }
 })
 
+
 const ARGS = {
-  top: {
-    key: {
-      valid: [ 'average', 'variance', 'deviation', 'forecast', 'messages', ],
-      default: 'average',
-  },
-    take: {
-      valid: {min: 0, max: 256},
-      default: 10,
+  convos: {
+    top: {
+      key: {
+        valid: [ 'average', 'variance', 'deviation', 'forecast', 'messages', ],
+        default: 'average',
+    },
+      take: {
+        valid: {min: 0, max: 256},
+        default: 10,
+      },
     },
   },
+  top: {
+    emoji: {
+      valid: {}
+    },
+    channels: {},
+    users: {},
+  },
 }
+
 
 receiver.router.get(`/api/convos/top`, cors(), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let arg_key: string
-    if (ARGS.top.key.valid.includes(req.query.key as string)) { arg_key = req.query.key as string }
-    else { arg_key = ARGS.top.key.default }
+    if (ARGS.convos.top.key.valid.includes(req.query.key as string)) { arg_key = req.query.key as string }
+    else { arg_key = ARGS.convos.top.key.default }
 
     let arg_take: number
     if (req.query.take) {
-      const _arg_take = parseInt(req.query.take as string) || ARGS.top.take.default
-      arg_take = Math.min(Math.max(_arg_take, ARGS.top.take.valid.min), ARGS.top.take.valid.max);
+      const _arg_take = parseInt(req.query.take as string) || ARGS.convos.top.take.default
+      arg_take = Math.min(Math.max(_arg_take, ARGS.convos.top.take.valid.min), ARGS.convos.top.take.valid.max);
     }
-    else { arg_take = ARGS.top.take.default }
+    else { arg_take = ARGS.convos.top.take.default }
 
     const tops = await prisma.movingAverage.findMany({
       distinct: ['slack_id'],
@@ -112,3 +123,66 @@ receiver.router.get(`/api/convos/top`, cors(), async (req: Request, res: Respons
   }
 })
 
+
+// "the most popular emoji (in the past hour) (by reaction frequency, descending) [in b-flat]"
+receiver.router.get(`/api/top/emoji`, cors(), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const out = await prisma.reaction.groupBy({
+      by: ['emoji_id'],
+      count: { _all: true, },
+      orderBy: { _count: { id: 'desc', }, },
+      where: {
+        created: { gt: new Date(Date.now() - (1000 * 60 * 60 * 24)), },
+      },
+      //select: {
+        //emoji_id: true,
+        //count: {select: {id: true}},
+      //},
+    })
+    res.status(200).json(out.map((x: any) => {x.count = x.count._all; return x}))
+
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({err: {code: 500, message: e.message}})
+  }
+})
+
+
+// "the most active users (in the past hour) (by message frequency, descending) {zfogg remix}"
+receiver.router.get(`/api/top/users`, cors(), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const out = await prisma.message.groupBy({
+      by: ['user_id'],
+      count: { _all: true, },
+      orderBy: { _count: { id: 'desc', }, },
+      where: {
+        created: { gt: new Date(Date.now() - (1000 * 60 * 60 * 24)), },
+      },
+    })
+    res.status(200).json(out.map((x: any) => {x.count = x.count._all; return x}))
+
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({err: {code: 500, message: e.message}})
+  }
+})
+
+
+// "the most active channels (in the past hour) (by message frequency, descending) <skrillex live edit>"
+receiver.router.get(`/api/top/channels`, cors(), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const out = await prisma.message.groupBy({
+      by: ['channel_id'],
+      count: { _all: true, },
+      orderBy: { _count: { id: 'desc', }, },
+      where: {
+        created: { gt: new Date(Date.now() - (1000 * 60 * 60 * 24)), },
+      },
+    })
+    res.status(200).json(out.map((x: any) => {x.count = x.count._all; return x}))
+
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({err: {code: 500, message: e.message}})
+  }
+})
