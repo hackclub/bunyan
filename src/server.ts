@@ -6,6 +6,18 @@ import path from 'path'
 import { PrismaClient } from '@prisma/client'
 export const prisma = new PrismaClient()
 
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+
+
+export const io_http = createServer()
+export const io = new Server(io_http, { })
+
+io.on('connection', async (socket) => {
+  console.log('connect from client')
+  socket.emit('hi')
+})
+
 
 const writeFile = util.promisify(fs.writeFile)
 

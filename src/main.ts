@@ -1,15 +1,19 @@
-import app, { prisma } from './server'
+import app, { prisma, io, io_http } from './server'
 import {maPool, pushMas, pullMas, masStats, MA_INTERVAL} from './convos'
 import './commands'
 
 
 export default async function main() {
-  const { HOST, PORT, NODE_ENV } = process.env
+  const { HOST, PORT, PORT_WS, NODE_ENV } = process.env
   await app.start({
     host: (HOST ? HOST : '0.0.0.0'),
     port: (PORT ? parseInt(PORT) : 3000),
   })
   console.log(`⚡️ Bolt app is running on http://${HOST}:${PORT}/ in mode='${NODE_ENV}'!`)
+
+  const port_ws = PORT_WS ? PORT_WS : 3003
+  await io_http.listen(port_ws)
+  console.log(`socket.io started on http://${HOST}:${port_ws}/ in mode='${NODE_ENV}'!`)
 
   //console.log('getting all EMAs')
   //const allEmas = await prisma.movingAverage.findMany()
