@@ -1,6 +1,0 @@
-{
-  "signal": "SIGHUP",
-  "ext": "ts",
-  "exec": "ts-node-dev --inspect --rs --transpile-only --watch=src src/index.ts",
-  "watch": ["src"]
-}
