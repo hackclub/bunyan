@@ -1,4 +1,4 @@
-import { prisma } from '../server'
+import { prisma, RelationalScalarFieldEnum } from '../server'
 
 
 async function main() {
@@ -33,6 +33,90 @@ async function main() {
   console.info('\ngiven an emoji_id and (start, end)::datetime, show the most frequent USERS for that emoji')
   console.table(topUsersForEmoji)
 }
+
+
+// {{{
+export async function TopEmoji(take: number, [gt, lt]: Date[]) {
+  const topEmoji = await prisma.reaction.groupBy({
+    by: ['emoji_id'],
+    count: {_all: true},
+    orderBy: {_count: {id: 'desc'}},
+    where: {
+      created: { gt, lt, },
+    },
+    take: take,
+  })
+  return topEmoji
+}
+// }}}
+
+
+// {{{
+export async function TopMessagesBy(by: RelationalScalarFieldEnum[], take: number, [gt, lt]: Date[]) {
+  const topMessagesBy = await prisma.message.groupBy({
+    by, // ['emoji_id', 'channel_id', 'user_id'], // probably choose one idk
+    count: {_all: true},
+    orderBy: {_count: {id: 'desc'}},
+    where: { created: { gt, lt, }, },
+  })
+  return topMessagesBy
+}
+
+export async function TopReactionsBy(by: RelationalScalarFieldEnum[], take: number, [gt, lt]: Date[]) {
+  const topReactionsBy = await prisma.reaction.groupBy({
+    by, // ['emoji_id', 'channel_id', 'user_id'], // probably choose one idk
+    count: {_all: true},
+    orderBy: {_count: {id: 'desc'}},
+    where: { created: { gt, lt, }, },
+  })
+  return topReactionsBy
+}
+
+type TopForTmp = {[key: string]: {[key: string]: number}}
+type TopForItem = {
+  emoji_id?: string
+  channel_id?: string
+  user_id?: string
+  count: {[key: string]: number}
+}
+export async function MergeGroups(by: string, xs: TopForItem[], ys: TopForItem[], key: string) {
+  const tmp = {}
+  xs.reduceRight(((acc: TopForTmp, stat: any, i) => {
+    if (!acc) { throw new Error(`undefined acc for ${by} ${key}`) }
+    if (!(stat[by] in acc)) { (acc as any)[stat[by]] = {count: {[key]: 0}} };
+    (acc as any)[stat[by]].count[key] += stat.count[key]; return acc
+  }), tmp)
+  ys.reduceRight(((acc: TopForTmp, stat: any, i) => {
+    if (!acc) { throw new Error(`undefined acc for ${by} ${key}`) }
+    if (!(stat[by] in acc)) { (acc as any)[stat[by]] = {count: {[key]: 0}} };
+    (acc as any)[stat[by]].count[key] += stat.count[key]; return acc
+  }), tmp)
+  const mergedSortedGroups = Object.entries(tmp)
+    .map(([x, xstat]) => ({[by]: x, count: (xstat as any).count}))
+    .sort((x, y) => ((y as any).count[key] - (x as any).count[key]))
+  return mergedSortedGroups
+}
+// }}}
+
+
+// {{{
+export async function TopUsers(take: number, [gt, lt]: Date[]) {
+  const topUsersByMessage  = await TopMessagesBy(['user_id'],  take, [gt as Date, lt as Date])
+  const topUsersByReaction = await TopReactionsBy(['user_id'], take, [gt as Date, lt as Date])
+  const topUsers = MergeGroups('user_id', topUsersByMessage, topUsersByReaction, '_all')
+  return topUsers
+}
+// }}}
+
+
+// {{{
+export async function TopChannels(take: number, [gt, lt]: Date[]) {
+  const topChannelsByMessage  = await TopMessagesBy(['channel_id'],  take, [gt as Date, lt as Date])
+  const topChannelsByReaction = await TopReactionsBy(['channel_id'], take, [gt as Date, lt as Date])
+  const topChannels = MergeGroups('channel_id', topChannelsByMessage, topChannelsByReaction, '_all')
+  return topChannels
+}
+// }}}
 
 
 // {{{

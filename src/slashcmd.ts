@@ -4,7 +4,12 @@ import { maPool, masStats, maStats, getMa } from './convos'
 import { channelMaBlocks, userMaBlocks } from './home'
 import { sortedMas, nonzeroMas } from './util'
 import { format, formatDistance, formatRelative, subDays, subMinutes } from 'date-fns'
-import { TopUsersForChannel, TopEmojiForChannel, TopEmojiForUser, TopChannelsForUser, TopChannelsForEmoji, TopUsersForEmoji, } from './scripts/queries'
+import {
+  TopEmoji, TopChannels, TopUsers,
+  TopUsersForChannel, TopEmojiForChannel,
+  TopEmojiForUser, TopChannelsForUser,
+  TopChannelsForEmoji, TopUsersForEmoji,
+} from './scripts/queries'
 
 
 const CMD = {
@@ -267,6 +272,53 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
         },
       })
     }
+
+  } else {
+    let topEmoji = await TopEmoji(25, [gt, lt])
+    if (topEmoji.length) {
+      responseBlocks.push({ type: "divider" })
+      responseBlocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Top _:emoji:_:`,
+            topEmoji.map(x => `:${x.emoji_id}: - \`:${x.emoji_id}:\` (${x.count._all})`).join(', ')
+          ].join('\n'),
+        },
+      })
+    }
+
+    let topChannels = await TopChannels(25, [gt, lt])
+    if (topChannels.length) {
+      responseBlocks.push({ type: "divider" })
+      responseBlocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Top _#channels_:`,
+            topChannels.map(x => `<#${x.channel_id}> (${(x as any).count._all})`).join(', ')
+          ].join('\n'),
+        },
+      })
+    }
+
+    let topUsers = await TopUsers(25, [gt, lt])
+    if (topEmoji.length) {
+      responseBlocks.push({ type: "divider" })
+      responseBlocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Top _@users_:`,
+            topUsers.map(x => `<@${x.user_id}> (${(x as any).count._all})`).join(', ')
+          ].join('\n'),
+        },
+      })
+    }
+
   }
 
   //console.log(responseBlocks)

@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["orderByAggregateGroup"]
+  previewFeatures = ["orderByAggregateGroup", "selectRelationCount"]
 }
 
 datasource db {
@@ -8,98 +8,83 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model SlackResource {
-  id             String          @id
-  created        DateTime        @default(now())
-  updated        DateTime        @default(now()) @updatedAt
-  watching       Boolean         @default(true)
-  averages       MovingAverage[]
+  id       String          @id
+  created  DateTime        @default(now())
+  updated  DateTime        @default(now()) @updatedAt
+  watching Boolean         @default(true)
+  averages MovingAverage[]
 }
 
 model MovingAverage {
-  id             Int            @id @default(autoincrement())
-  created        DateTime       @default(now())
-  messages       Int            @default(0)
-  //
-  average        Decimal        @default(0)
-  variance       Decimal        @default(0)
-  deviation      Decimal        @default(0)
-  forecast       Decimal        @default(0)
-  //
+  created        DateTime      @default(now())
+  average        Decimal       @default(0)
+  variance       Decimal       @default(0)
+  deviation      Decimal       @default(0)
+  forecast       Decimal       @default(0)
   slack_id       String
-  slack_resource SlackResource  @relation(fields: [slack_id], references: [id])
-  //
-  @@index([slack_id])
-}
+  id             Int           @id @default(autoincrement())
+  messages       Int           @default(0)
+  slack_resource SlackResource @relation(fields: [slack_id], references: [id])
 
+  @@index([slack_id], name: "MovingAverage.slack_id_index")
+}
 
 model User {
-  id             String          @id
-  created        DateTime        @default(now())
-  updated        DateTime        @default(now()) @updatedAt
-  watching       Boolean         @default(true)
-  reactions      Reaction[]
-  messages       Message[]
+  id        String     @id
+  created   DateTime   @default(now())
+  updated   DateTime   @default(now()) @updatedAt
+  watching  Boolean    @default(true)
+  messages  Message[]
+  reactions Reaction[]
 }
-
 
 model Channel {
-  id             String          @id
-  created        DateTime        @default(now())
-  updated        DateTime        @default(now()) @updatedAt
-  watching       Boolean         @default(true)
-  reactions      Reaction[]
-  messages       Message[]
+  id        String     @id
+  created   DateTime   @default(now())
+  updated   DateTime   @default(now()) @updatedAt
+  watching  Boolean    @default(true)
+  messages  Message[]
+  reactions Reaction[]
 }
-
 
 model Emoji {
-  id             String          @id
-  created        DateTime        @default(now())
-  updated        DateTime        @default(now()) @updatedAt
-  watching       Boolean         @default(true)
-  reactions      Reaction[]
+  id        String     @id
+  created   DateTime   @default(now())
+  updated   DateTime   @default(now()) @updatedAt
+  watching  Boolean    @default(true)
+  reactions Reaction[]
 }
-
 
 model Reaction {
-  id             Int             @id @default(autoincrement())
-  created        DateTime        @default(now())
-  //
-  emoji_id       String
-  emoji          Emoji           @relation(fields: [emoji_id], references: [id])
-  //
-  user_id        String
-  user           User            @relation(fields: [user_id], references: [id])
-  //
-  channel_id     String
-  channel        Channel         @relation(fields: [channel_id], references: [id])
-  //
-  @@index([emoji_id])
-  @@index([user_id])
-  @@index([emoji_id, user_id])
-  @@index([channel_id])
-  @@index([emoji_id, channel_id])
+  id         Int      @id @default(autoincrement())
+  created    DateTime @default(now())
+  emoji_id   String
+  user_id    String
+  channel_id String
+  channel    Channel  @relation(fields: [channel_id], references: [id])
+  emoji      Emoji    @relation(fields: [emoji_id], references: [id])
+  user       User     @relation(fields: [user_id], references: [id])
+
+  @@index([channel_id], name: "Reaction.channel_id_index")
+  @@index([emoji_id, channel_id], name: "Reaction.emoji_id_channel_id_index")
+  @@index([emoji_id], name: "Reaction.emoji_id_index")
+  @@index([emoji_id, user_id], name: "Reaction.emoji_id_user_id_index")
+  @@index([user_id], name: "Reaction.user_id_index")
 }
 
-
 model Message {
-  id             Int             @id @default(autoincrement())
-  created        DateTime        @default(now())
-  //
+  id             Int      @id @default(autoincrement())
+  created        DateTime @default(now())
   user_id        String
-  user           User            @relation(fields: [user_id], references: [id])
-  //
   channel_id     String
-  channel        Channel         @relation(fields: [channel_id], references: [id])
-  //
-  @@index([user_id])
-  @@index([channel_id])
-  @@index([user_id, channel_id])
-  //
   content_hash   String
   content_length Int
-  // `ts` is slack resource
   ts             String
+  channel        Channel  @relation(fields: [channel_id], references: [id])
+  user           User     @relation(fields: [user_id], references: [id])
+
+  @@index([channel_id], name: "Message.channel_id_index")
+  @@index([user_id, channel_id], name: "Message.user_id_channel_id_index")
+  @@index([user_id], name: "Message.user_id_index")
 }
