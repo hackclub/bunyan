@@ -1,6 +1,6 @@
 import { GenericMessageEvent } from '@slack/bolt'
 import MA, { MovingAverage } from './ma'
-import app, { prisma } from './server'
+import app, { prisma, io } from './server'
 import sha1 from 'sha1'
 
 
@@ -13,7 +13,7 @@ app.message(/./, async ({ message, say, logger }) => {
 
       const text = message && message.text || ''
       const length = message && message.text && message.text.length || 0
-      await prisma.message.create({
+      const message$ = await prisma.message.create({
         data: {
           ts: msg_ts,
           content_hash: sha1(text),
@@ -33,6 +33,8 @@ app.message(/./, async ({ message, say, logger }) => {
         },
       })
       console.log(`ADDED message - ${msg_ts}`)
+
+      io.emit("messages", { message: message$, })
 
     } catch (e) {
       console.log(e)

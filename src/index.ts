@@ -20,5 +20,10 @@ main()
   .finally(async () => {
     await prisma.$disconnect()
   })
+process.on('SIGINT', async () => {
+  console.log("Bye bye!")
+  //await prisma.$disconnect()
+  process.exit()
+})
 
 export default {}

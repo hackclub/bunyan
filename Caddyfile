@@ -9,15 +9,15 @@
   root / ./public
   file_server
 
-  reverse_proxy /api/*   localhost:{$PORT_APP:3002}
-  reverse_proxy /slack/* localhost:{$PORT_APP:3002}
+  reverse_proxy /api/*   :{$PORT_APP:3002}
+  reverse_proxy /slack/* :{$PORT_APP:3002}
 
   @websockets {
     header Connection *Upgrade*
     header Upgrade websocket
   }
 
-  reverse_proxy @websockets /socket.io/* localhost:{$PORT_WS:3003} {
+  reverse_proxy @websockets /socket.io/* :{$PORT_WS:3003} {
     header_up Host {host}
     header_up X-Real-IP {remote_host}
     header_up X-Forwarded-For {remote_host}

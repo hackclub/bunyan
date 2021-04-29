@@ -1,12 +1,12 @@
 import { ReactionMessageItem } from '@slack/bolt'
 import MA, { MovingAverage } from './ma'
-import app, { prisma } from './server'
+import app, { prisma, io } from './server'
 
 
 app.event('reaction_added', async ({ event, context, body }) => {
   try {
     console.log(`*adding* reaction - ${event.reaction}`)
-    await prisma.reaction.create({
+    const reaction = await prisma.reaction.create({
       data: {
         emoji: {
           connectOrCreate: {
@@ -29,6 +29,8 @@ app.event('reaction_added', async ({ event, context, body }) => {
       },
     })
     console.log(`ADDED reaction - ${event.reaction}`)
+
+    io.emit("reaction", { reaction, })
 
   } catch (e) {
     console.log(e)

@@ -21,7 +21,7 @@
   "scripts": {
     "build": "npx tsc || true",
     "start": "npx nodemon dist/index.js",
-    "dev": "npx ts-node-dev --rs --transpile-only --watch=src src/index.ts"
+    "dev": "nodemon"
   },
   "dependencies": {
     "@prisma/client": "^2.21.0",
@@ -31,6 +31,7 @@
     "@types/sha1": "^1.1.2",
     "@types/socket.io": "^2.1.13",
     "cors": "^2.8.5",
+    "date-fns": "^2.21.1",
     "dotenv": "^8.2.0",
     "moving-average": "^1.0.1",
     "nodemon": "^2.0.7",

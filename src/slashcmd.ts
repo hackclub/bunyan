@@ -3,13 +3,16 @@ import app, { prisma, ENV } from './server'
 import { maPool, masStats, maStats, getMa } from './convos'
 import { channelMaBlocks, userMaBlocks } from './home'
 import { sortedMas, nonzeroMas } from './util'
+import { format, formatDistance, formatRelative, subDays, subMinutes } from 'date-fns'
+import { TopUsersForChannel, TopEmojiForChannel, TopEmojiForUser, TopChannelsForUser, TopChannelsForEmoji, TopUsersForEmoji, } from './scripts/queries'
 
 
-const CHANNELS_CMD = (ENV.NODE_ENV === 'development')
-  ? '/top-ch-dev'
-  : '/top-ch'
+const CMD = {
+  sup:     (ENV.NODE_ENV === 'development') ? '/sup-dev'    : '/sup',
+  supwit:  (ENV.NODE_ENV === 'development') ? '/supwit-dev' : '/supwit',
+}
 
-app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }) => {
+app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => {
   await ack()
 
   // idk why .filter doesn't work lol
@@ -26,7 +29,6 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
     argTime = parseInt(commandMatches[1], 10)
   }
   if (argTime <= 0) { argTime = 120 }
-
   const sampleTime = new Date(Date.now() - 1000 * 60 * argTime)
 
   const chSamples = await prisma.movingAverage.groupBy({
@@ -74,7 +76,9 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
       ]
     })
 
-  try { // Call views.open with the built-in client
+  try {
+    // FIXME: this modal stuff lol
+    // Call views.open with the built-in client
     //const result = await client.views.open({
     //const result = await client.views.open({
       //trigger_id: body.trigger_id, // Pass a valid trigger_id within 3 seconds of receiving it
@@ -112,7 +116,7 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
           type: "mrkdwn",
           text: [
             `:wave: Hi! These are the top channels to check out right now :sparkles:`,
-            `_(period: since ${sampleTime})_`,
+            `_(since ${formatRelative(subMinutes(new Date(), argTime), new Date())})_`,
           ].join('\n')
         }
       },
@@ -127,6 +131,172 @@ app.command(CHANNELS_CMD, async ({ command, ack, client, body, respond, logger }
   } catch (error) {
     console.error(error);
   }
+
+})
+
+
+app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) => {
+  await ack()
+
+  //console.log(command)
+
+  //const argTime_matches = (new RegExp(`^(\\d+)$`)).exec(command.text)
+  const arg1Matches = /^(\d+)/.exec(command.text)
+  //console.log({arg1Matches})
+  let argTime: number = 0
+  if (arg1Matches && arg1Matches[1]) {
+    argTime = parseInt(arg1Matches[1], 10)
+  }
+  if (argTime <= 0) { argTime = 120 }
+  const gt =  new Date(Date.now() - 1000 * 60 * argTime) // gt = further into the past <---<---
+  const lt = new Date(Date.now())                        // lt = closer to the present --->--->
+
+  let arg2_text = arg1Matches ? command.text.split(' ').slice(1).join('') : command.text
+  let argUserMatch    = /^<(\@)(\w+)(\|.+)?>/.exec(arg2_text)
+  let argChannelMatch = /^<(\#)(\w+)(\|.+)?>/.exec(arg2_text)
+  let argEmojiMatch   = /^(:)(.+):/.exec(arg2_text)
+  let arg2Match: any = null
+  const arg2Matches = [argUserMatch, argChannelMatch, argEmojiMatch]
+    .filter((x) => x !== null)
+    .sort((x, y) => (x && y) ? x.index - y.index : Infinity)
+  if (arg2Matches.length) { arg2Match = arg2Matches[0] }
+
+  let argSlackId: string | null = null
+  let argSlackType: string | null = null
+  let argSlackTypeName: string | null = null
+  let argSlackTypeRender: string | null = null
+  if (arg2Match && arg2Match[1] && arg2Match[2]) {
+    argSlackId   = arg2Match[2]
+    argSlackType = arg2Match[1]
+    if      (argSlackType === '#') { argSlackTypeName = 'channel'; argSlackTypeRender = `<#${argSlackId}>` }
+    else if (argSlackType === '@') { argSlackTypeName = 'user';    argSlackTypeRender = `<@${argSlackId}>` }
+    else                           { argSlackTypeName = 'emoji';   argSlackTypeRender = `:${argSlackId}:` }
+  }
+
+  let responseBlocks: any[] = []
+
+  if (argSlackId && argSlackTypeName === 'channel') {
+    let topUsersForChannel = await TopUsersForChannel([argSlackId], [gt, lt])
+    if (topUsersForChannel.length) {
+      responseBlocks.push({ type: "divider" })
+      responseBlocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Top _@users_ for ${argSlackTypeRender}:`,
+            topUsersForChannel.map(x => `<@${x.user_id}> (${x.count._all})`).join(', ')
+          ].join('\n'),
+        },
+      })
+    }
+
+    let topEmojiForChannel = await TopEmojiForChannel([argSlackId], [gt, lt])
+    if (topEmojiForChannel.length) {
+      responseBlocks.push({ type: "divider" })
+      responseBlocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Top _:emoji:_ for ${argSlackTypeRender}:`,
+            topEmojiForChannel.map(x => `:${x.emoji_id}: (${x.count._all})`).join(', ')
+          ].join('\n'),
+        },
+      })
+    }
+
+  } else if (argSlackId && argSlackTypeName === 'user')    {
+    let topEmojiForUser    = await TopEmojiForUser([argSlackId], [gt, lt])
+    if (topEmojiForUser.length) {
+      responseBlocks.push({ type: "divider" })
+      responseBlocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Top _:emoji:_ for ${argSlackTypeRender}:`,
+            topEmojiForUser.map(x => `:${x.emoji_id}: (${x.count._all})`).join(', ')
+          ].join('\n'),
+        },
+      })
+    }
+
+    let topChannelsForUser = await TopChannelsForUser([argSlackId], [gt, lt])
+    if (topChannelsForUser.length) {
+      responseBlocks.push({ type: "divider" })
+      responseBlocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Top _#channels_ for ${argSlackTypeRender}:`,
+            topChannelsForUser.map(x => `<#${x.channel_id}> (${x.count})`).join(', ')
+          ].join('\n'),
+        },
+      })
+    }
+
+  } else if (argSlackId && argSlackTypeName === 'emoji')   {
+    let topChannelsForEmoji = await TopChannelsForEmoji([argSlackId], [gt, lt])
+    if (topChannelsForEmoji.length) {
+      responseBlocks.push({ type: "divider" })
+      responseBlocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Top _#channels_ for ${argSlackTypeRender}:`,
+            topChannelsForEmoji.map(x => `<#${x.channel_id}> (${x.count._all})`).join(', ')
+          ].join('\n'),
+        },
+      })
+    }
+
+    let topUsersForEmoji    = await TopUsersForEmoji([argSlackId], [gt, lt])
+    if (topUsersForEmoji.length) {
+      responseBlocks.push({ type: "divider" })
+      responseBlocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Top _@users_ for ${argSlackTypeRender}:`,
+            topUsersForEmoji.map(x => `<@${x.user_id}> (${x.count._all})`).join(', ')
+          ].join('\n'),
+        },
+      })
+    }
+  }
+
+  //console.log(responseBlocks)
+
+  const scrappyHint = `_hint: try \`/${CMD.supwit} @scrappy\` or \`/${CMD.supwit} #scrapbook\``
+  const queryMsg = argSlackType ? `\`${argSlackTypeName}\` - ${argSlackTypeRender}` : 'ALL OF SLACK'
+  const headerMsg = responseBlocks.length > 0
+    ? `:wave: Hi! Here's the info you wanted. :sparkles:`
+    : `:-1: 404 meh :/ you probably didn't need to know anything right :sad-yeehaw:`
+
+  //console.log({argSlackType, argSlackTypeName, argSlackTypeRender, argSlackId})
+
+  await respond({
+    response_type: 'ephemeral',
+    replace_original: true,
+    blocks: [{
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: [
+          headerMsg,
+          `_Right now you're querying: ${queryMsg}_`,
+          (argSlackType === null ? scrappyHint : ''),
+          `_(since ${formatRelative(subMinutes(new Date(), argTime), new Date())})_`,
+        ].join('\n')
+      }
+    },
+      ...responseBlocks,
+    ]
+  })
 
 })
 
