@@ -20,8 +20,8 @@ Want to query a specific channel, user, or emoji?
 
 You can run any of these:
 
-- `/supwit @orpehus` _Where has @orpheus been active recently?_
-- `/supwit 30 @orpehus` _Where has @orpheus been active in the last 30 minutes?_
+- `/supwit @orpheus` _Where has @orpheus been active recently?_
+- `/supwit 30 @orpheus` _Where has @orpheus been active in the last 30 minutes?_
 - `/supwit :yay:` _Where has the :yay: reaction been used recently?_
 - `/supwit 45 :yay:` _Where has the :yay: reaction been used in the last 45 min?_
 - `/supwit #lounge` _What's happening in #lounge?_
