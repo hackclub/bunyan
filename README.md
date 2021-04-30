@@ -33,10 +33,6 @@ If you want to opt-in or opt-out of logging (for yourself or a channel), type
 `@Paul Bunyan help`– he's an all-around great guy and will do his best to
 accomodate whatever you're trying to do.
 
-## Reasoning and background
-
-Community game designer
-
 ## Future work
 
 ### Stats API
