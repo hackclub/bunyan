@@ -25,7 +25,7 @@ const MSGS = {
 * send the message \`<@${BOT_ID}> stats me\` or \`<@${BOT_ID}> stats channel\` to see information about yourself or the channel you're in. you can find channel info on this bot's home tab! (click my username 😎).
 * i'll never stream private messages, group chats, or private channels. message \`<@${USER_IDS.zfogg}>\` if you have any questions. happy hacking!
 
-you can find me at \`https://github.com/hackclub/sb2\`!`,
+you can find me at \`https://github.com/hackclub/bunyan\`!`,
 
   disableMe: `i will now ignore your messages`,
   enableMe:  `i will now stream your messages`,

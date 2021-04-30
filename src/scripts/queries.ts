@@ -1,4 +1,5 @@
-import { prisma, RelationalScalarFieldEnum } from '../server'
+//import { RelationalScalarFieldEnum } from '@types/prisma'
+import { prisma } from '../server'
 
 
 async function main() {
@@ -43,32 +44,47 @@ export async function TopEmoji(take: number, [gt, lt]: Date[]) {
     orderBy: {_count: {id: 'desc'}},
     where: {
       created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
     },
-    take: take,
+    take,
   })
+  //console.table(topEmoji)
   return topEmoji
 }
 // }}}
 
 
 // {{{
-export async function TopMessagesBy(by: RelationalScalarFieldEnum[], take: number, [gt, lt]: Date[]) {
+export async function TopMessagesBy(by: string[], take: number, [gt, lt]: Date[]) {
   const topMessagesBy = await prisma.message.groupBy({
-    by, // ['emoji_id', 'channel_id', 'user_id'], // probably choose one idk
+    by: by as any[], // ['emoji_id', 'channel_id', 'user_id'], // probably choose one idk
     count: {_all: true},
     orderBy: {_count: {id: 'desc'}},
-    where: { created: { gt, lt, }, },
+    where: {
+      created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
+    },
+    take,
   })
+  //console.table(topMessagesBy)
   return topMessagesBy
 }
 
-export async function TopReactionsBy(by: RelationalScalarFieldEnum[], take: number, [gt, lt]: Date[]) {
+export async function TopReactionsBy(by: string[], take: number, [gt, lt]: Date[]) {
   const topReactionsBy = await prisma.reaction.groupBy({
-    by, // ['emoji_id', 'channel_id', 'user_id'], // probably choose one idk
+    by: by as any[], // ['emoji_id', 'channel_id', 'user_id'], // probably choose one idk
     count: {_all: true},
     orderBy: {_count: {id: 'desc'}},
-    where: { created: { gt, lt, }, },
+    where: {
+      created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
+    },
+    take,
   })
+  //console.table(topReactionsBy)
   return topReactionsBy
 }
 
@@ -94,6 +110,7 @@ export async function MergeGroups(by: string, xs: TopForItem[], ys: TopForItem[]
   const mergedSortedGroups = Object.entries(tmp)
     .map(([x, xstat]) => ({[by]: x, count: (xstat as any).count}))
     .sort((x, y) => ((y as any).count[key] - (x as any).count[key]))
+  //console.table(mergedSortedGroups)
   return mergedSortedGroups
 }
 // }}}
@@ -104,6 +121,7 @@ export async function TopUsers(take: number, [gt, lt]: Date[]) {
   const topUsersByMessage  = await TopMessagesBy(['user_id'],  take, [gt as Date, lt as Date])
   const topUsersByReaction = await TopReactionsBy(['user_id'], take, [gt as Date, lt as Date])
   const topUsers = MergeGroups('user_id', topUsersByMessage, topUsersByReaction, '_all')
+  //console.table(topUsers)
   return topUsers
 }
 // }}}
@@ -114,6 +132,7 @@ export async function TopChannels(take: number, [gt, lt]: Date[]) {
   const topChannelsByMessage  = await TopMessagesBy(['channel_id'],  take, [gt as Date, lt as Date])
   const topChannelsByReaction = await TopReactionsBy(['channel_id'], take, [gt as Date, lt as Date])
   const topChannels = MergeGroups('channel_id', topChannelsByMessage, topChannelsByReaction, '_all')
+  //console.table(topChannels)
   return topChannels
 }
 // }}}
@@ -128,8 +147,11 @@ export async function TopUsersForChannel(channel_ids: string[], [gt, lt]: Date[]
     where: {
       channel_id: {in: channel_ids},
       created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
     },
   })
+  //console.table(topUsersForChannel)
   return topUsersForChannel
 }
 // }}}
@@ -144,9 +166,11 @@ export async function TopEmojiForChannel(channel_ids: string[], [gt, lt]: Date[]
     where: {
       channel_id: {in: channel_ids},
       created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
     },
   })
-  console.table(topEmojiForChannel)
+  //console.table(topEmojiForChannel)
   return topEmojiForChannel
 }
 // }}}
@@ -161,9 +185,11 @@ export async function TopEmojiForUser(user_ids: string[], [gt, lt]: Date[]) {
     where: {
       user_id: {in: user_ids},
       created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
     },
   })
-  console.table(topEmojiForUser)
+  //console.table(topEmojiForUser)
   return topEmojiForUser
 }
 // }}}
@@ -186,6 +212,8 @@ export async function TopChannelsForUser(user_ids: string[], [gt, lt]: Date[]) {
     where: {
       user_id: {in: user_ids},
       created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
     },
   }) //console.table(topChannelsForUser_messages)
 
@@ -196,6 +224,8 @@ export async function TopChannelsForUser(user_ids: string[], [gt, lt]: Date[]) {
     where: {
       user_id: {in: user_ids},
       created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
     },
   }) //console.table(topChannelsForUser_reactions)
 
@@ -211,7 +241,7 @@ export async function TopChannelsForUser(user_ids: string[], [gt, lt]: Date[]) {
     .map(([channel_id, count]) => ({channel_id, count}))
     .sort((x, y) => (y.count - x.count))
 
-  console.table(topChannelsForUser)
+  //console.table(topChannelsForUser)
   return topChannelsForUser
 }
 // }}}
@@ -226,9 +256,11 @@ export async function TopChannelsForEmoji(emoji_ids: string[], [gt, lt]: Date[])
     where: {
       emoji_id: {in: emoji_ids},
       created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
     },
   })
-  console.table(topChannelsForEmoji)
+  //console.table(topChannelsForEmoji)
   return topChannelsForEmoji
 }
 // }}}
@@ -243,9 +275,11 @@ export async function TopUsersForEmoji(emoji_ids: string[], [gt, lt]: Date[]) {
     where: {
       emoji_id: {in: emoji_ids},
       created: { gt, lt, },
+      user:    { watching: true },
+      channel: { watching: true },
     },
   })
-  console.table(topUsersForEmoji)
+  //console.table(topUsersForEmoji)
   return topUsersForEmoji
 }
 // }}}
