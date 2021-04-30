@@ -4,7 +4,7 @@ import { maPool, masStats, maStats, getMa } from './convos'
 import { channelMaBlocks, userMaBlocks } from './home'
 
 
-const BOT_NAME = `streamBOOT`
+const BOT_NAME = `paulb`
 
 const BOT_ID = `U01S7UUCB89`
 
@@ -16,15 +16,14 @@ const USER_IDS = {
 }
 
 const MSGS = {
-  joinChannel: `:wave: hi! :wave: i'm a bot by \`<@${USER_IDS.zfogg}>\` that streams channel activity to <#${BOT_CHID}> so people can easily discover new channels. :canadaparrot:
+  joinChannel: `:wave: hi! :wave: i'm a bot by \`<@${USER_IDS.zfogg}>\` that streams and logs slack activity so people can easily discover new channels. :canadaparrot:
 
-don't want your channel (or your account) to be part of this? that's ok! just type \`<@${BOT_ID}> disable me\` to have me ignore all of your messages or \`<@${BOT_ID}> disable channel\` to have me ignore this whole channel.
-
-if you want to re-enable streaming, you can type \`<@${BOT_ID}> enable me\` or \`<@${BOT_ID}> enable channel\` and if you want to check whether i'm streaming, you can type \`<@${BOT_ID}> status me\` or \`<@${BOT_ID}> status channel\`.
-
-send the message \`<@${BOT_ID}> stats me\` or \`<@${BOT_ID}> stats channel\` to see information about yourself or the channel you're in. you can find channel info on this bot's home tab! (click my username 😎).
-
-i'll never stream private messages, group chats, or private channels. message \`<@${USER_IDS.zfogg}>\` if you have any questions. happy hacking!
+* if you run \`/sup\`, i'll tell you what _'sup_ in slack. you can run \`/sup 600\` to see what 'sup over the past 10 hours.
+* if you run \`/supwit [:emoji:, #channel, @user]\` i'll tell you what _'sup wit_ that thing. i'll tell you what 'sup wit other stuff in slack if you don't give me anything specific (\`/supwit\`). i'll tell you what 'sup wit stuff over the past 1440 minutes by default, but you can pass in a different number of minutes like \`/supwit 120\` or \`/supwit 120 #lounge\` \`/supwit 120 <@${USER_IDS.zfogg}>\` or \`/supwit 120 :upvote:\` for two hours.
+* don't want your channel (or your account) to be part of this? that's ok! just type \`<@${BOT_ID}> disable me\` to have me ignore all of your messages or \`<@${BOT_ID}> disable channel\` to have me ignore this whole channel.
+* if you want to re-enable streaming, you can type \`<@${BOT_ID}> enable me\` or \`<@${BOT_ID}> enable channel\` and if you want to check whether i'm streaming, you can type \`<@${BOT_ID}> status me\` or \`<@${BOT_ID}> status channel\`.
+* send the message \`<@${BOT_ID}> stats me\` or \`<@${BOT_ID}> stats channel\` to see information about yourself or the channel you're in. you can find channel info on this bot's home tab! (click my username 😎).
+* i'll never stream private messages, group chats, or private channels. message \`<@${USER_IDS.zfogg}>\` if you have any questions. happy hacking!
 
 you can find me at \`https://github.com/hackclub/sb2\`!`,
 
@@ -157,4 +156,3 @@ app.event('app_mention', async ({ event, say, client, logger }) => {
 
   }
 })
-

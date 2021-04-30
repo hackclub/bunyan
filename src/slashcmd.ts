@@ -33,7 +33,7 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
   if (commandMatches && commandMatches[1]) {
     argTime = parseInt(commandMatches[1], 10)
   }
-  if (argTime <= 0) { argTime = 120 }
+  if (argTime <= 0) { argTime = 120 } // default
   const sampleTime = new Date(Date.now() - 1000 * 60 * argTime)
 
   const chSamples = await prisma.movingAverage.groupBy({
@@ -152,7 +152,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
   if (arg1Matches && arg1Matches[1]) {
     argTime = parseInt(arg1Matches[1], 10)
   }
-  if (argTime <= 0) { argTime = 120 }
+  if (argTime <= 0) { argTime = 1440 } // default
   const gt =  new Date(Date.now() - 1000 * 60 * argTime) // gt = further into the past <---<---
   const lt = new Date(Date.now())                        // lt = closer to the present --->--->
 
