@@ -327,7 +327,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
   const queryMsg = argSlackType ? `\`${argSlackTypeName}\` - ${argSlackTypeRender}` : 'ALL OF SLACK'
   const headerMsg = responseBlocks.length > 0
     ? `:wave: Hi! Here's the info you wanted. :sparkles:`
-    : `:-1: 404 meh :/ you probably didn't need to know anything right :sad-yeehaw:`
+    : `:sad-yeehaw: Well shucks, I don't have anything in my log pile that matches that. I reckon if you run this in the future though I can find something for you.`
 
   //console.log({argSlackType, argSlackTypeName, argSlackTypeRender, argSlackId})
 
