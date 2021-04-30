@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
+  <link href="style.css" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.1.0/dist/chart.min.js"></script>
 
   <!-- For timestamps -->
@@ -17,75 +18,25 @@
   <!-- Easy colors -->
   <script src="https://raw.githack.com/Fooidge/PleaseJS/master/dist/Please.js"></script>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+  <!-- Animate emoji -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
-    h1 {
-      font-family: 'Lobster', cursive;
-      position: relative;
-      font-size: 5em;
-    }
-
-    canvas {
-      max-height: 60vh;
-    }
-
-    .header-container {
-      margin: 0 auto;
-    }
-
-    .header {
-      margin-bottom: 24px;
-      position: relative;
-      display: inline-block;
-    }
-
-    .header::before {
-      content: 'Find out';
-      font-size: 36px;
-      position: absolute;
-      font-weight: lighter;
-      transform: rotate(-6deg);
-      top: -20px;
-      color: red;
-    }
-
-    .header::after {
-      content: 'on the hack club slack';
-      font-family: sans;
-      position: absolute;
-      font-size: 36px;
-      bottom: -20px;
-      right: 0;
-    }
-
-    body {
-      background-image: url('https://cloud-oth8cndgs-hack-club-bot.vercel.app/0grid.svg');
-      color: whitesmoke;
-      text-align: center;
-      align-content: center;
-      justify-content: center;
-      margin: 0;
-      padding: 0;
-      background: #2e2e2e;
-    }
-
-    pre {
-      padding: 1em;
-      display: inline-block;
-      text-align: left;
-      margin: 0 auto !important;
-      background: rgba(138, 109, 109, 0.3);
-      border-radius: 10px;
-    }
-  </style>
+  <script src="helpers.js"></script>
 </head>
 
 <body>
   <a href="https://github.com/hackclub/sb2" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#fff; color:#151513; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+  <div class="emoji-container"></div>
   <div class="header-container">
     <h1 class="header">What's poppin'</h1>
   </div>
+  <ul class="channel-results">
+    <li class="channel-top-1 loading"></li>
+    <li class="channel-top-2 loading"></li>
+    <li class="channel-top-3 loading"></li>
+    <li class="channel-top-4 loading"></li>
+    <li class="channel-top-5 loading"></li>
+  </ul>
   <p class="updated"><em>Loading...</em></p>
   <div class="results"></div>
   <p>This was created with <a href="https://streamboot-bot.herokuapp/">Streamboot</a></p>
@@ -96,155 +47,7 @@
       </code></pre>
   </details>
 </body>
-<script>
-  var data = {
-    movingAverages: [],
-    updatedAt: null
-  }
-
-  var chart
-  var chartOptions = {}
-
-  const endpoint = window.location.origin + '/api/demo'
-
-  const lavalampColors = [
-    { r: 236, g: 9, b: 48 },
-    { r: 205, g: 84, b: 147 },
-    { r: 205, g: 147, b: 84 },
-    { r: 96, g: 20, b: 162 },
-    { r: 96, g: 20, b: 162 },
-    { r: 96, g: 20, b: 162 },
-    { r: 96, g: 20, b: 162 },
-    { r: 96, g: 20, b: 162 },
-    { r: 96, g: 20, b: 162 },
-  ]
-  function rgba(c, a) {
-    return `rgba(${[c.r, c.g, c.b, a].join(',')})`
-  }
-  function colorFromString(string) {
-    return Please.make_color({seed: string, format: 'rgb'})[0]
-  }
-  const channelStorage = {}
-  async function generateChannelName(channelID) {
-    if (!channelStorage[channelID]) {
-      channelStorage[channelID] = fetch(`/api/demo-channel-lookup/${channelID}`).then(r => r.json()).then(r => '#'+r.name)
-    }
-    return await channelStorage[channelID]
-  }
-
-  function run() {
-    let success = false
-    fetch(endpoint)
-      .then(r =>
-        r.json()
-      ).then(movingAverages => {
-        if (movingAverages) {
-          data.updatedAt = Date.now()
-          data.rawData = movingAverages
-          data.channelData = {}
-          movingAverages
-            .filter(c => c.slack_id[0] === 'C')
-            .forEach(ma => {
-            if (!data.channelData[ma['slack_id']]) {
-              data.channelData[ma['slack_id']] = {
-                score: 0,
-                points: []
-              }
-            }
-            data.channelData[ma.slack_id].score += Math.min(Math.exp(ma.average), 50)
-            data.channelData[ma.slack_id].points.push({
-              y: Math.min(Math.exp(ma.average), 50),
-              x: ma.ten_min_timestamp
-            })
-          })
-          success = true
-        }
-      }).finally(() => {
-        // render all the data (success or not)
-        const updateEl = document.querySelector('.updated')
-        if (data.updatedAt) {
-          let date = new Date(data.updatedAt)
-          updateEl.innerHTML = `Latest data pulled at <strong>${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}</strong>`
-        } else {
-          updateEl.innerHTML = `<em>(Failed to load latest data, will retry shortly)</em>`
-        }
-
-        const resultEl = document.querySelector('.results')
-        const dataEl = document.querySelector('.raw-data')
-        if (data.channelData) {
-          if (!document.querySelector('canvas')) {
-            const el = document.createElement('canvas')
-            el.width = 400
-            el.height = 400
-            resultEl.appendChild(el)
-            chartOptions.type = 'line'
-            chartOptions.options = {
-              scales: {
-                x: {
-                  type: 'time',
-                  time: {
-                    unit: 'minute'
-                  }
-                },
-                y: {
-                  type: 'logarithmic'
-                }
-              },
-              animations: {
-                tension: {
-                  duration: 3000,
-                  easing: 'linear',
-                  from: 1,
-                  to: 0.5,
-                  loop: true
-                }
-              },
-              plugins: {
-                zoom: {
-                  pan: {
-                    enabled: true,
-                    mode: 'x'
-                  },
-                  zoom: {
-                    enabled: true,
-                    mode: 'x',
-                  }
-                }
-              }
-            }
-            const ctx = el.getContext('2d')
-            chart = new Chart(ctx, chartOptions)
-          }
-
-          // update the graph
-          chartOptions.data.datasets = []
-
-          const channelPromises = Object.keys(data.channelData).map(async (channelID, index) => {
-            if (index < 10) {
-              chartOptions.data.datasets.push({
-                label: await generateChannelName(channelID),
-                data: data.channelData[channelID].points,
-                fill: true,
-                fillOpacity: 0.5,
-                borderColor: rgba(colorFromString(channelID), 0.8),
-                backgroundColor: rgba(colorFromString(channelID), 0.3),
-                tension: 0.5,
-              })
-            }
-          })
-          Promise.all(channelPromises).then(() => chart.update('none'))
-
-          dataEl.innerHTML = `// ${endpoint}\n${JSON.stringify(data.rawData, null, 2)}`
-        } else {
-          resultEl.innerHTML = `⚠️ something has gone wrong`
-          dataEl.innerHTML = `⚠️ something has gone wrong`
-        }
-      })
-  }
-
-  run()
-
-  // setInterval(run, 1000 * 15) // ever 15 seconds, update the list
-</script>
-
+<script src="activity-chart.js"></script>
+<script src="channel-list.js"></script>
+<script src="emoji.js"></script>
 </html>

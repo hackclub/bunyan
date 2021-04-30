@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+
+h1 {
+  font-family: 'Lobster', cursive;
+  position: relative;
+  font-size: 5em;
+}
+
+canvas {
+  max-height: 60vh;
+}
+
+a {
+  color: white;
+}
+
+.header-container {
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 24px;
+  position: relative;
+  display: inline-block;
+}
+
+.header::before {
+  content: 'Find out';
+  font-size: 36px;
+  position: absolute;
+  font-weight: lighter;
+  transform: rotate(-6deg);
+  top: -20px;
+  color: red;
+}
+
+.header::after {
+  content: 'on the hack club slack';
+  font-family: sans;
+  position: absolute;
+  font-size: 36px;
+  bottom: -20px;
+  right: 0;
+}
+.loading::after {
+  content: 'loading...';
+  font-style: italic;
+}
+.explosion {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 1px;
+  width: 1px;
+}
+.emoji-container {
+  position: relative;
+}
+.emoji {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+.emoji::after {
+  content: attr(data-emoji)
+}
+
+body {
+  background-image: url('https://cloud-oth8cndgs-hack-club-bot.vercel.app/0grid.svg');
+  color: whitesmoke;
+  text-align: center;
+  align-content: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  background: #2e2e2e;
+}
+
+pre {
+  padding: 1em;
+  display: inline-block;
+  text-align: left;
+  margin: 0 auto !important;
+  background: rgba(138, 109, 109, 0.3);
+  border-radius: 10px;
+}
