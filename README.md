@@ -1,68 +1,38 @@
-# @streamBOOT
+<img src="https://cloud-k25eaalth-hack-club-bot.vercel.app/0dzuu6xmx4aaorbz.jpeg" width="200px" align="right">
 
-a @streambot reboot
+# @Paul Bunyan
 
-because @streambot is in so many channels, it can actually know a lot about
-slack club.  this is great for the community game designers because we want to
-recommend channels to people. that's why this bot is rebooted to track message
-frequency across channels with [some statistical analysis (this is the algorithm implemented)](https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average).
+_Work inspired by [@streambot](https://github.com/hackclub/streambot)._
 
+@Paul Bunyan (pictured to the right) logs everything happening in the Hack Club
+Slack. Posts, reactions, etc. all get tracked so he can help you understand
+where the activity in the Slack is.
 
-## how does it work?
+## How to use
 
-* we keep exponential moving averages (EMA) of message frequency over time
-* an EMA's x-axis is quantized into windows of 30 seconds
-* an EMA's y-axis charts the EMA within each x-axis window of time
+Ask Paul Bunyan what's happening in the Slack by typing `/sup`– he'll respond with a list of 5 recently active channels in the last 2 hours:
 
-* one may query this project's API
-* a JSON object that represents an EMA for a slack resource (users and channels) will be returned
+![](https://cloud-k25eaalth-hack-club-bot.vercel.app/1screen_shot_2021-04-30_at_17.36.13.png)
 
-here is an example EMA:
+---
 
-```json
-{
-    "slack_id": "C01RNH6K9JS",
-    "average": "10",
-    "variance": "0",
-    "deviation": "0",
-    "forecast": "0"
-}
-```
+Want to query a specific channel, user, or emoji?
 
-here is another example EMA (it is the same as the first but has "decayed" with time):
+You can run any of these:
 
-```json
-{
-    "slack_id": "C01RNH6K9JS",
-    "average": "0.00012257550710530237",
-    "variance": "0.00012256048235036022",
-    "deviation": "0.011070703787490668",
-    "forecast": "-8.830486419323291e-05"
-}
-```
+- `/supwit @orpehus` _Where has @orpheus been active recently?_
+- `/supwit 30 @orpehus` _Where has @orpheus been active in the last 30 minutes?_
+- `/supwit :yay:` _Where has the :yay: reaction been used recently?_
+- `/supwit 45 :yay:` _Where has the :yay: reaction been used in the last 45 min?_
+- `/supwit #lounge` _What's happening in #lounge?_
+- `/supwit 60 #lounge` _What's been happening in #lounge over the past 60 min_
 
+## What can @Paul Bunyan see?
 
-## if you want to test it out
+If you want to opt-in or opt-out of logging (for yourself or a channel), type
+`@Paul Bunyan help`– he's an all-around great guy and will do his best to
+accomodate whatever you're trying to do.
 
+## Reasoning and background
 
-"okay but how can i actually use this right now?"
-
-1. go to [#streamboot-dev](https://hackclub.slack.com/archives/C01RNH6K9JS)
-2. post something OR don't post anything
-3. wait 30 seconds
-4. check these endpoints
-5. GOTO step2
-
-
-endpoints:
-
-* [GET /api/convos](https://streamboot-bot.herokuapp.com/api/convos) - all tracked resources
-* [GET /api/convos/:id](https://streamboot-bot.herokuapp.com/api/convo/C01RNH6K9JS) - grab a single resource
-
-P.S. these endpoints are temporary and literally running on my personal laptop behind cloudlfare
-
-## local development
-
-You can configure your local keys with direnv or dotenv (included). Just make use of the example direnv file.
-
-If using direnv, make sure to `brew install direnv` (or whatever your OS does) & initialize in your .bashrc.
+Community game designer
