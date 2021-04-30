@@ -41,7 +41,7 @@ Community game designer
 
 ### Stats API
 
-We could build some pretty great graphs & analytics tools if we could query the data we're storing.
+We could build some pretty great graphs & analytics tools if we could query the data we're storing. You can find a work-in-progress example of this at http://streamboot-bot.herokuapp.com.
 
 ### Websockets
 
