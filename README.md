@@ -36,3 +36,15 @@ accomodate whatever you're trying to do.
 ## Reasoning and background
 
 Community game designer
+
+## Future work
+
+### Stats API
+
+We could build some pretty great graphs & analytics tools if we could query the data we're storing.
+
+### Websockets
+
+In the future we might add websocket support to post out to other applications when a new reaction or message is posted in the Slack. You can see an example of how we'd use that info on our [Slack Join Page](https://hackclub.com/slack)
+
+![](https://cloud-1f3dc5q2u-hack-club-bot.vercel.app/0screen_shot_2021-04-30_at_18.11.01.png)
