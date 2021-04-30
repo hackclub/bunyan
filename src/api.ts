@@ -1,19 +1,9 @@
 import app, { prisma, receiver } from './server'
-import { Request, Response, NextFunction } from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import { maPool, masStats, maStats } from './convos'
 import cors from 'cors'
-import path from 'path'
 
-
-receiver.router.get(`/`, (req: Request, res: Response, next: NextFunction) => {
-  res.redirect('https://github.com/hackclub/sb2')
-})
-
-
-receiver.router.get(`/demo`, cors(), (req: Request, res: Response, next: NextFunction) => {
-  console.log(path.join(__dirname,'../public/demo.html'))
-  res.sendFile(path.join(__dirname,'../public/demo.html'))
-})
+receiver.router.use(express.static('public'))
 
 receiver.router.get(`/api/demo`, async (req: Request, res: Response, next: NextFunction) => {
   const results = await prisma.fiveMinEmaView.findMany({
