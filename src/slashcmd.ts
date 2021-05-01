@@ -13,8 +13,8 @@ import {
 
 
 const CMD = {
-  sup:     (ENV.NODE_ENV === 'development') ? '/sup-dev'    : '/sup',
-  supwit:  (ENV.NODE_ENV === 'development') ? '/supwit-dev' : '/supwit',
+  sup:     (ENV.NODE_ENV === 'development') ? '/dev-asdf'    : '/sup',
+  supwit:  (ENV.NODE_ENV === 'development') ? '/dev-asdflol' : '/supwit',
 }
 
 app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => {
@@ -75,9 +75,7 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
             ].join('\n'),
           },
         },
-        {
-          type: "divider"
-        },
+        { type: "divider" },
       ]
     })
 
@@ -282,8 +280,9 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
         text: {
           type: "mrkdwn",
           text: [
-            `Top _:emoji:_:`,
-            topEmoji.map(x => `:${x.emoji_id}: - \`:${x.emoji_id}:\` (${x.count._all})`).join(', ')
+            `Top *:emoji:* _(hint: try \`${CMD.supwit} :scrappy:\`)_`,
+            //topEmoji.map(x => `:${x.emoji_id}: - \`:${x.emoji_id}:\` (${x.count._all})`).join(', ')
+            topEmoji.map(x => `:${x.emoji_id}: (${x.count._all})`).join(', ')
           ].join('\n'),
         },
       })
@@ -297,7 +296,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
         text: {
           type: "mrkdwn",
           text: [
-            `Top _#channels_:`,
+            `Top *#channels* _(hint: try \`${CMD.supwit} #scrapbook\`)_`,
             topChannels.map(x => `<#${x.channel_id}> (${(x as any).count._all})`).join(', ')
           ].join('\n'),
         },
@@ -312,7 +311,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
         text: {
           type: "mrkdwn",
           text: [
-            `Top _@users_:`,
+            `Top *@users* _(hint: try \`${CMD.supwit} @scrappy\`)_`,
             topUsers.map(x => `<@${x.user_id}> (${(x as any).count._all})`).join(', ')
           ].join('\n'),
         },
@@ -323,7 +322,6 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
 
   //console.log(responseBlocks)
 
-  const scrappyHint = `_hint: try \`/${CMD.supwit} @scrappy\` or \`/${CMD.supwit} #scrapbook\``
   const queryMsg = argSlackType ? `\`${argSlackTypeName}\` - ${argSlackTypeRender}` : 'ALL OF SLACK'
   const headerMsg = responseBlocks.length > 0
     ? `:wave: Hi! Here's the info you wanted. :sparkles:`
@@ -340,9 +338,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
         type: "mrkdwn",
         text: [
           headerMsg,
-          `_Right now you're querying: ${queryMsg}_`,
-          (argSlackType === null ? scrappyHint : ''),
-          `_(since ${formatRelative(subMinutes(new Date(), argTime), new Date())})_`,
+          `'sup wit: ${queryMsg} _(since ${formatRelative(subMinutes(new Date(), argTime), new Date())})_`,
         ].join('\n')
       }
     },
