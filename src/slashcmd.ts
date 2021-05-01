@@ -4,6 +4,7 @@ import { maPool, masStats, maStats, getMa } from './convos'
 import { channelMaBlocks, userMaBlocks } from './home'
 import { sortedMas, nonzeroMas } from './util'
 import { format, formatDistance, formatRelative, subDays, subMinutes } from 'date-fns'
+import { BOT_ID } from './commands'
 import {
   TopEmoji, TopChannels, TopUsers,
   TopUsersForChannel, TopEmojiForChannel,
@@ -329,6 +330,10 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
 
   //console.log({argSlackType, argSlackTypeName, argSlackTypeRender, argSlackId})
 
+  const bodyMsg = responseBlocks.length > 0
+    ? `'sup wit: ${queryMsg} _(since ${formatRelative(subMinutes(new Date(), argTime), new Date())})_`
+    : `_(hint: try \`<@${BOT_ID}> status (channel|me)\` or \`<@${BOT_ID}> help\`)_`
+
   await respond({
     response_type: 'ephemeral',
     replace_original: true,
@@ -338,7 +343,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
         type: "mrkdwn",
         text: [
           headerMsg,
-          `'sup wit: ${queryMsg} _(since ${formatRelative(subMinutes(new Date(), argTime), new Date())})_`,
+          bodyMsg,
         ].join('\n')
       }
     },

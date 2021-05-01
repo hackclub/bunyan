@@ -6,7 +6,7 @@ import { channelMaBlocks, userMaBlocks } from './home'
 
 const BOT_NAME = `paulb`
 
-const BOT_ID = process.env.BOT_ID || `U01S7UUCB89`
+export const BOT_ID = process.env.BOT_ID || `U01S7UUCB89`
 
 const BOT_CHID = process.env.BOT_CHID || `CGSEAP135`
 
@@ -65,12 +65,25 @@ made by <@${USER_IDS.zfogg}> with <3 at Hack Club HQ`,
 }
 
 
-async function setWatching(id: string, onOff: boolean) {
+async function setWatching(slack_type: 'user' | 'channel', id: string, onOff: boolean) {
   const ma = maPool[id]
   if (!(id in maPool) || typeof ma === 'undefined') {
     throw new Error(`resource with id '${id}' is unknown`)
   }
   try { // FIXME: this should happen in bulk
+    if (slack_type === 'user') {
+      await prisma.user.upsert({
+        where:  { id, },
+        create: { id, watching: onOff },
+        update: {     watching: onOff },
+      })
+    } else if (slack_type === 'channel') {
+      await prisma.channel.upsert({
+        where:  { id, },
+        create: { id, watching: onOff },
+        update: {     watching: onOff },
+      })
+    }
     await prisma.slackResource.upsert({
       where:  { id, },
       create: { id, watching: onOff },
@@ -112,19 +125,19 @@ app.event('app_mention', async ({ event, say, client, context, logger }) => {
         const onOrOff  = arg[1]
         switch (`${meOrChan}.${onOrOff}`) {
           case `me.disable`:
-            await setWatching(event.user, false)
+            await setWatching('user', event.user, false)
             msg = MSGS.disableMe
             break
           case `me.enable`:
-            await setWatching(event.user, true)
+            await setWatching('user', event.user, true)
             msg = MSGS.enableMe
             break
           case `channel.disable`:
-            await setWatching(event.channel, false)
+            await setWatching('channel', event.channel, false)
             msg = MSGS.disableChannel
             break
           case `channel.enable`:
-            await setWatching(event.channel, true)
+            await setWatching('channel', event.channel, true)
             msg = MSGS.enableChannel
             break
           default:
