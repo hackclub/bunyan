@@ -62,6 +62,8 @@ model Reaction {
   emoji_id   String
   user_id    String
   channel_id String
+  ts         Decimal  @default(0)
+  event_ts   Decimal  @default(0)
   channel    Channel  @relation(fields: [channel_id], references: [id])
   emoji      Emoji    @relation(fields: [emoji_id], references: [id])
   user       User     @relation(fields: [user_id], references: [id])
@@ -80,7 +82,8 @@ model Message {
   channel_id     String
   content_hash   String
   content_length Int
-  ts             String
+  ts             Decimal  @default(0)
+  thread_ts      Decimal  @default(0)
   channel        Channel  @relation(fields: [channel_id], references: [id])
   user           User     @relation(fields: [user_id], references: [id])
 
