@@ -37,14 +37,12 @@ this guy is super into logging, so he always knows what ’sup around slack.
 * \`/sup 1440\` What ’sup over the past day (1 day = 1440 minutes)
 * \`/sup 600\` What ’sup over the past 10 hours (10 hours = 600 minutes).
 
-
 2. \`/supwit\`  - run with an emoji, channel, or user, and bunyan will tell you what ’sup wit that thing! (\`/supwit :upvote:\` , \`/supwit #lounge\`, \`/supwit @scrappy\`)
 * \`/supwit\` What 'sup wit Hack Club tho?
 * \`/supwit 60\` What 'sup wit Hack Club in the past 60 minutes?
 * \`/supwit @orpheus\` Where has @orpheus been active recently?
 * \`/supwit 45 :yay:\` Where has the :yay: reaction been used in the last 45 min?
 * \`/supwit 120 #lounge\` What’s been happening in #lounge over the past 2 hours?
-
 
 <@${BOT_ID}> only logs interaction times, not their contents, not private channels or DMs, and you may opt out any time.
 * type \`<@${BOT_ID}> disable me\` to ignore all messages or \`<@${BOT_ID}> disable channel\` if don't want your channel (or account) to be part of this.
