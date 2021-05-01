@@ -46,7 +46,7 @@ this guy is super into logging, so he always knows what ’sup around slack.
 * \`/supwit 120 #lounge\` What’s been happening in #lounge over the past 2 hours?
 
 
-<@${BOT_ID}> and only logs message times, never their contents, no private channels or DMs, and you may opt out any time.
+<@${BOT_ID}> only logs interaction times, not their contents, not private channels or DMs, and you may opt out any time.
 * type \`<@${BOT_ID}> disable me\` to ignore all messages or \`<@${BOT_ID}> disable channel\` if don't want your channel (or account) to be part of this.
 * type \`<@${BOT_ID}> enable me\` or \`<@${BOT_ID}> enable channel\` to re-enable this.
 * type \`<@${BOT_ID}> status me\` or \`<@${BOT_ID}> status channel\` to see what 'sup.
