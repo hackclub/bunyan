@@ -88,7 +88,7 @@ async function statusWatching(id: string) {
 
 
 //app.message(RegExp(`^<@${BOT_ID}> help`, `i`), async ({ message, client, logger, context }) => {
-app.event('app_mention', async ({ event, say, client, logger }) => {
+app.event('app_mention', async ({ event, say, client, context, logger }) => {
   if (!event.text.startsWith(`<@${BOT_ID}>`)) {
     return
   }
@@ -96,20 +96,20 @@ app.event('app_mention', async ({ event, say, client, logger }) => {
   if ('user' in event && event.user !== undefined) {
     // Not all messages have a user FIXME
 
-    let context
+    let arg
     let msg = ''
 
     const message = event
     const _message = (message as unknown) as GenericMessageEvent
     const thread_ts = _message.thread_ts || _message.ts
 
-    if (context = event.text.match(RegExp(`^<@${BOT_ID}> help`, `i`))) {
+    if (arg = event.text.match(RegExp(`^<@${BOT_ID}> help`, `i`))) {
       msg = MSGS.help
 
-    } else if (context = event.text.match(RegExp(`^<@${BOT_ID}> (enable|disable) (me|channel)`, `i`))) {
+    } else if (arg = event.text.match(RegExp(`^<@${BOT_ID}> (enable|disable) (me|channel)`, `i`))) {
       try {
-        const meOrChan = context[2]
-        const onOrOff  = context[1]
+        const meOrChan = arg[2]
+        const onOrOff  = arg[1]
         switch (`${meOrChan}.${onOrOff}`) {
           case `me.disable`:
             await setWatching(event.user, false)
@@ -128,14 +128,14 @@ app.event('app_mention', async ({ event, say, client, logger }) => {
             msg = MSGS.enableChannel
             break
           default:
-            throw new Error('unknown context matches')
+            throw new Error('unknown arg matches')
         }
       } catch (e) {
         console.error(msg = 'could not enable/disable. check your command?', event, e)
       }
 
-    } else if (context = event.text.match(RegExp(`^<@${BOT_ID}> status (me|channel)`, `i`))) {
-      switch (context[1]) {
+    } else if (arg = event.text.match(RegExp(`^<@${BOT_ID}> status (me|channel)`, `i`))) {
+      switch (arg[1]) {
         case `me`:
           const meOnOff = await statusWatching(event.user)
           msg = meOnOff ? MSGS.statusMeListening : MSGS.statusMeIgnoring
@@ -148,9 +148,9 @@ app.event('app_mention', async ({ event, say, client, logger }) => {
           console.error(msg = 'could not get status. check your command?', event)
       }
 
-    } else if (context = event.text.match(RegExp(`^<@${BOT_ID}> stats (me|channel)`, `i`))) {
+    } else if (arg = event.text.match(RegExp(`^<@${BOT_ID}> stats (me|channel)`, `i`))) {
       let blocks
-      switch (context[1]) {
+      switch (arg[1]) {
         case `me`:
           const usMa = getMa(event.user)
           if (usMa === undefined || usMa.ma == undefined) { break }
@@ -166,7 +166,7 @@ app.event('app_mention', async ({ event, say, client, logger }) => {
           await say({blocks: blocks as SayArguments, thread_ts})
           break
         default:
-          console.error(msg = 'could not get status. check your command?', event)
+          logger.error(msg = 'could not get status. check your command?', event)
           await say({text: msg, thread_ts})
       }
       return
@@ -175,6 +175,19 @@ app.event('app_mention', async ({ event, say, client, logger }) => {
     if (msg.length === 0) {
       msg = `:axe: check your command :sad-yeehaw:\n(try \`<@${BOT_ID}> help\`)` // FIXME lol proper error handling
     }
+
+    app.client.reactions.add({
+      token: context.botToken,
+      name: 'axe',
+      channel: event.channel,
+      timestamp: event.ts,
+    })
+    app.client.reactions.add({
+      token: context.botToken,
+      name: 'thread',
+      channel: event.channel,
+      timestamp: event.ts,
+    })
 
     await client.chat.postMessage({ // .postEphemeral
       channel: event.channel,
