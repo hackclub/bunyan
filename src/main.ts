@@ -3,8 +3,9 @@ import {maPool, pushMas, pullMas, masStats, MA_INTERVAL} from './convos'
 import './commands'
 
 
+const { HOST, PORT, PORT_WS, NODE_ENV } = process.env
+
 export default async function main() {
-  const { HOST, PORT, PORT_WS, NODE_ENV } = process.env
   await app.start({
     host: (HOST ? HOST : '0.0.0.0'),
     port: (PORT ? parseInt(PORT) : 3000),
@@ -41,7 +42,7 @@ async function loopPushMas() {
       stats.push(maStat)
     }
   }
-  if (stats.length > 0) {
+  if (stats.length > 0 && NODE_ENV !== 'production') {
     console.log(stats.length, 'stats')
     console.table(stats)
   }
