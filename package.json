@@ -33,6 +33,7 @@
     "cors": "^2.8.5",
     "date-fns": "^2.21.1",
     "dotenv": "^8.2.0",
+    "emoji-name-map": "^1.2.9",
     "moving-average": "^1.0.1",
     "nodemon": "^2.0.7",
     "sha1": "^1.1.1",
