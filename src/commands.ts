@@ -211,3 +211,24 @@ app.event('app_mention', async ({ event, say, client, context, logger }) => {
 
   }
 })
+
+
+// FIXME: combine these into one function?
+app.event('channel_unarchive', async ({ event, say, client, context, logger }) => {
+  logger.info('CHANNEL UNARCHIVED', event)
+  try {
+    await client.conversations.join({channel: event.channel})
+    await prisma.channel.create({data: {id: event.channel}, })
+  } catch (e) {
+    logger.error(e)
+  }
+})
+app.event('channel_created', async ({ event, say, client, context, logger }) => {
+  logger.info('CHANNEL CREATED', event.channel)
+  try {
+    await client.conversations.join({channel: event.channel.id})
+    await prisma.channel.create({data: {id: event.channel.id}, })
+  } catch (e) {
+    logger.error(e)
+  }
+})

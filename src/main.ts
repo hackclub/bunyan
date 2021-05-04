@@ -43,8 +43,8 @@ async function loopPushMas() {
     }
   }
   if (stats.length > 0 && NODE_ENV !== 'production') {
-    console.log(stats.length, 'stats')
-    console.table(stats)
+    //console.log(stats.length, 'stats')
+    //console.table(stats)
   }
 
   //console.table(masStats(maPool))
