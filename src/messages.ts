@@ -16,29 +16,31 @@ app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
       limit: 128,
       cursor,
     })
-    console.log((channels as any[]).length, response_metadata) //; return
-    const $channels = []
-    for (const c of (channels as any[])) { $channels.push(c.id) }
+    console.log((channels as any[]).length) //; return
     //console.table(channels.map((x) => x.id))
     console.log('JOINING ALL CHANNELS')
     console.log('channels.length', (channels as any[]).length)
-    for (const channel of $channels) {
-      const inDb = await prisma.channel.findFirst({where: {id: channel}, })
+    for (const channel of (channels as any[])) {
+      const inDb = await prisma.channel.findFirst({where: {id: channel.id}, })
+      console.log(`joining??? id=${channel.id} channel=${channel.name}`)
       if (inDb === null) {
         try {
-          const res = await client.conversations.join({channel})
-          await prisma.channel.create({data: {id: channel}, })
+          const res = await client.conversations.join({channel: channel.id})
+          await prisma.channel.create({data: {id: channel.id}, })
           console.log(`JOINED ${(res as any).channel.id} ${(res as any).channel.name}`)
         } catch (e) {
-          console.log(`fail :/ ${channel}`)
+          console.log(`fail :/ ${channel.id}`)
           logger.error(e)
         }
       }
-      await snooze(3000)
+      await snooze(2000)
     }
     if (response_metadata !== undefined && response_metadata.next_cursor) {
-      await snooze(3000)
+      await snooze(5000)
       await getPage(response_metadata.next_cursor)
+      logger.info('PAGE'); logger.info('PAGE'); logger.info('PAGE'); logger.info('PAGE');
+    } else {
+      logger.info('DONE'); logger.info('DONE'); logger.info('DONE'); logger.info('DONE');
     }
   }
   await getPage()
