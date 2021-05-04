@@ -62,6 +62,8 @@ made by <@${USER_IDS.zfogg}> with <3 at Hack Club HQ`,
 
   statusChannelIgnoring:  `i am ignoring this channel's messages`,
   statusChannelListening: `i am streaming this channel's messages`,
+
+  status: `up an' loggin'`
 }
 
 
@@ -118,7 +120,8 @@ app.event('app_mention', async ({ event, say, client, context, logger }) => {
 
     if (arg = event.text.match(RegExp(`^<@${BOT_ID}> help`, `i`))) {
       msg = MSGS.help
-
+    } else if (arg = event.text.match(RegExp(`^<@${BOT_ID}> r u good bruh`, 'i'))) {
+      msg = MSGS.status
     } else if (arg = event.text.match(RegExp(`^<@${BOT_ID}> (enable|disable) (me|channel)`, `i`))) {
       try {
         const meOrChan = arg[2]
