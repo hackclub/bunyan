@@ -1,33 +1,47 @@
 import { GenericMessageEvent } from '@slack/bolt'
 import MA, { MovingAverage } from './ma'
+import { snooze } from './util'
 import app, { prisma, io } from './server'
 import sha1 from 'sha1'
 import { channels } from '../data/streamboot-data.old.json'
 
 
 app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
-  if (process.env.NODE_ENV !== 'production') { return }
-  const { channels } = (await client.users.conversations({user: 'UGS15J18R', limit: 10000}))
-  const $channels = []
-  for (const c of (channels as any[])) { $channels.push(c.id) }
-  //console.table(channels.map((x) => x.id))
+  //if (process.env.NODE_ENV !== 'production') { return }
   console.log('tryna join all...')
   if ((message as GenericMessageEvent).user !== 'U01DV5F30CF') { return }
-  console.log('JOINING ALL CHANNELS')
-  console.log('channels.length', (channels as any[]).length)
-  for (const channel of $channels) {
-    const inDb = await prisma.channel.findFirst({where: {id: channel}, })
-    if (inDb === null) {
-      try {
-        const res = await client.conversations.join({channel})
-        await prisma.channel.create({data: {id: channel}, })
-        console.log(`JOINED ${(res as any).channel.id} ${(res as any).channel.name}`)
-      } catch (e) {
-        console.log(`fail :/ ${channel}`)
-        logger.error(e)
+  const getPage = async (cursor?: string) => {
+    const { channels, response_metadata } = await client.users.conversations({
+      user: 'USYUBKF1A' /* the fuzz */,
+      limit: 128,
+      cursor,
+    })
+    console.log((channels as any[]).length, response_metadata) //; return
+    const $channels = []
+    for (const c of (channels as any[])) { $channels.push(c.id) }
+    //console.table(channels.map((x) => x.id))
+    console.log('JOINING ALL CHANNELS')
+    console.log('channels.length', (channels as any[]).length)
+    for (const channel of $channels) {
+      const inDb = await prisma.channel.findFirst({where: {id: channel}, })
+      if (inDb === null) {
+        try {
+          const res = await client.conversations.join({channel})
+          await prisma.channel.create({data: {id: channel}, })
+          console.log(`JOINED ${(res as any).channel.id} ${(res as any).channel.name}`)
+        } catch (e) {
+          console.log(`fail :/ ${channel}`)
+          logger.error(e)
+        }
       }
+      await snooze(3000)
+    }
+    if (response_metadata !== undefined && response_metadata.next_cursor) {
+      await snooze(3000)
+      await getPage(response_metadata.next_cursor)
     }
   }
+  await getPage()
 })
 
 app.message(/./, async ({ message, say, client, logger }) => {

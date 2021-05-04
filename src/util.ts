@@ -20,3 +20,6 @@ export function nonzeroMas(maPool: MaPool) {
     return x.ma.average() > 0
   })
 }
+
+
+export const snooze = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
