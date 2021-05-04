@@ -2,25 +2,28 @@ import { GenericMessageEvent } from '@slack/bolt'
 import MA, { MovingAverage } from './ma'
 import app, { prisma, io } from './server'
 import sha1 from 'sha1'
+import { channels } from '../data/streamboot-data.old.json'
 
 
 app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
-  const { channels } = await client.users.conversations({user: 'UGS15J18R', limit: 10000})
-  console.table(channels.map((x) => x.id))
+  if (process.env.NODE_ENV !== 'production') { return }
+  const { channels } = (await client.users.conversations({user: 'UGS15J18R', limit: 10000}))
+  const $channels = []
+  for (const c of (channels as any[])) { $channels.push(c.id) }
+  //console.table(channels.map((x) => x.id))
   console.log('tryna join all...')
   if ((message as GenericMessageEvent).user !== 'U01DV5F30CF') { return }
   console.log('JOINING ALL CHANNELS')
-  for (const channel of channels.slice()) {
-    console.log('channels.length', channels.length)
-    channels.shift()
+  console.log('channels.length', (channels as any[]).length)
+  for (const channel of $channels) {
     const inDb = await prisma.channel.findFirst({where: {id: channel}, })
     if (inDb === null) {
       try {
         const res = await client.conversations.join({channel})
         await prisma.channel.create({data: {id: channel}, })
-        console.log(`JOINED ${channel}`, res)
+        console.log(`JOINED ${channel.channel.name}`, res)
       } catch (e) {
-        console.log(`fail :/ ${channel}`)
+        console.log(`fail :/ ${channel.channel.name}`)
         logger.error(e)
       }
     }
