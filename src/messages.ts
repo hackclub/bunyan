@@ -21,9 +21,9 @@ app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
       try {
         const res = await client.conversations.join({channel})
         await prisma.channel.create({data: {id: channel}, })
-        console.log(`JOINED ${channel.channel.name}`, res)
+        console.log(`JOINED ${(res as any).channel.id} ${(res as any).channel.name}`)
       } catch (e) {
-        console.log(`fail :/ ${channel.channel.name}`)
+        console.log(`fail :/ ${channel}`)
         logger.error(e)
       }
     }
