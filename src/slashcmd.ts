@@ -331,7 +331,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
   const headerMsg = responseBlocks.length > 0
     ? [
       `\`${command.command} ${command.text}\` :robot_face:`,
-      `:wave: Phew! Logs are heavy. Here's ur info.. :sparkles: (\`${command.command command.text}\` :robot_face:)`,
+      `:wave: Phew! Logs are heavy. Here's ur info.. :sparkles:`,
       ].join('\n')
     : `:sad-yeehaw: Well shucks, I don't have anything in my log pile that matches that. I reckon if you run this in the future though I can find something for you.`
 
