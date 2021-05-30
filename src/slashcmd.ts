@@ -48,7 +48,8 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
       slack_id: { startsWith: 'C', },
       slack_resource: { watching: true, },
     },
-    orderBy: {_max: {average: 'desc', }, },
+    //orderBy: {_max: {average: 'desc', }, },
+    orderBy: {_avg: {average: 'desc', }, },
     having: { average: { avg: {gt: 0}, }, },
     // TODO: make .take a /channels arg
     take: 5,
