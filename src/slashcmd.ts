@@ -19,6 +19,7 @@ const CMD = {
 }
 
 app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => {
+  logger.info(command)
   await ack()
 
   // idk why .filter doesn't work lol
@@ -121,6 +122,7 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
           type: "mrkdwn",
           text: [
             `:wave: Hi! These are the top channels to check out right now :sparkles:`,
+            `:robot_face: \`${command.text}\` :robot_face:`,
             `_(since ${formatRelative(subMinutes(new Date(), argTime), new Date())})_`,
           ].join('\n')
         }
@@ -141,6 +143,7 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
 
 
 app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) => {
+  logger.info(command)
   await ack()
 
   //console.log(command)
@@ -326,7 +329,9 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
 
   const queryMsg = argSlackType ? `\`${argSlackTypeName}\` - ${argSlackTypeRender}` : 'ALL OF SLACK'
   const headerMsg = responseBlocks.length > 0
-    ? `:wave: Hi! Here's the info you wanted. :sparkles:`
+    ? [`:wave: Hi! Here's the info you wanted. :sparkles:`,
+       `:robot_face: \`${command.text}\` :robot_face:`,
+      ].join('\n')
     : `:sad-yeehaw: Well shucks, I don't have anything in my log pile that matches that. I reckon if you run this in the future though I can find something for you.`
 
   //console.log({argSlackType, argSlackTypeName, argSlackTypeRender, argSlackId})
