@@ -121,8 +121,7 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
         text: {
           type: "mrkdwn",
           text: [
-            `:wave: Hi! These are the top channels to check out right now :sparkles:`,
-            `:robot_face: \`${command.text}\` :robot_face:`,
+            `:axe: Surfs' up! Specifically in these channels :sparkles: (\`${command.command}\` :robot_face:)`,
             `_(since ${formatRelative(subMinutes(new Date(), argTime), new Date())})_`,
           ].join('\n')
         }
@@ -329,8 +328,8 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
 
   const queryMsg = argSlackType ? `\`${argSlackTypeName}\` - ${argSlackTypeRender}` : 'ALL OF SLACK'
   const headerMsg = responseBlocks.length > 0
-    ? [`:wave: Hi! Here's the info you wanted. :sparkles:`,
-       `:robot_face: \`${command.text}\` :robot_face:`,
+    ? [
+      `:wave: Phew! Logs are heavy. Here's ur info.. :sparkles: (\`${command.command}\` :robot_face:)`,
       ].join('\n')
     : `:sad-yeehaw: Well shucks, I don't have anything in my log pile that matches that. I reckon if you run this in the future though I can find something for you.`
 
