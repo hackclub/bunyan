@@ -1,9 +1,6 @@
 import { GenericMessageEvent, SayArguments } from '@slack/bolt'
 import app, { prisma, ENV } from './server'
-import { maPool, masStats, maStats, getMa } from './convos'
-import { channelMaBlocks, userMaBlocks } from './home'
-import { sortedMas, nonzeroMas } from './util'
-import { format, formatDistance, formatRelative, subDays, subMinutes } from 'date-fns'
+import { formatRelative, subMinutes } from 'date-fns'
 import { BOT_ID } from './commands'
 import {
   TopEmoji, TopChannels, TopUsers,

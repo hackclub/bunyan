@@ -84,7 +84,7 @@ export function channelMaBlocks(slackId: string, maStat: MaStat, watching: boole
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": `*<#${slackId}>*: Average: *${Math.exp(maStat.average).toFixed(4)}* | Variance: *${Math.exp(maStat.variance).toFixed(4)}* | Deviation: *${Math.exp(maStat.deviation).toFixed(4)}* | Forecast: *${Math.exp(maStat.forecast).toFixed(4)}*`
+        "text": `*<#${slackId}>*: Average: *${Math.exp(parseFloat(maStat.average)).toFixed(4)}* | Variance: *${Math.exp(parseFloat(maStat.variance)).toFixed(4)}* | Deviation: *${Math.exp(parseFloat(maStat.deviation)).toFixed(4)}* | Forecast: *${Math.exp(parseFloat(maStat.forecast)).toFixed(4)}*`
       },
     },
 

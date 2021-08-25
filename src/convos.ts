@@ -50,7 +50,7 @@ export async function pushMas(mas: MaPool, now: Date | number) {
   for (const [chId, chMa] of Object.entries(mas)) {
     if (chMa.watching === false) { console.log('not watching', chId); continue }
     const stats = maStats(chId, chMa.ma, chMa.iMsgs)
-    stats.messages = chMa.iMsgs.toString()
+    stats.messages = chMa.iMsgs
     chMa.ma.push(now, chMa.iMsgs)
     chMa.oMsgs += chMa.iMsgs
     chMa.iMsgs = 0
@@ -86,7 +86,7 @@ export async function pullMas() {
       orderBy: { created: 'desc', },
     })
     if (_ma === null) {
-      console.error(`broken movingAverage record for '${_sa}'`)
+      console.error(`broken movingAverage record for '${_sa.id}'`)
       continue
     }
 
@@ -113,7 +113,7 @@ export type MaStat = {
   variance:  string
   deviation: string
   forecast:  string
-  messages:  string
+  messages:  number
 }
 
 export function maStats(slack_id: string, ma: MovingAverage, messages: number | undefined) {
@@ -123,7 +123,7 @@ export function maStats(slack_id: string, ma: MovingAverage, messages: number | 
     variance:  (ma.variance()  || 0).toString(),
     deviation: (ma.deviation() || 0).toString(),
     forecast:  (ma.forecast()  || 0).toString(),
-    messages:  (messages       || 0).toString(),
+    messages:  (messages       || 0)
   }
   return stats
 }
