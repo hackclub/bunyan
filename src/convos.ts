@@ -6,8 +6,9 @@ import app, { prisma } from './server'
 export const MA_INTERVAL = process.env.MA_INTERVAL
   ? parseInt(process.env.MA_INTERVAL, 10)
   //: 1000 * 10 * 1  // 10 seconds
-  : 1000 * 30 * 1  // 30 seconds
+  //: 1000 * 30 * 1  // 30 seconds
   //: 1000 * 60 * 1  // one minute
+  : 1000 * 90 * 1  // 90 seconds
   //: 1000 * 60 * 5  // five minutes
   //: 1000 * 60 * 30 // thirty minutes
 
@@ -49,7 +50,7 @@ export async function pushMas(mas: MaPool, now: Date | number) {
   for (const [chId, chMa] of Object.entries(mas)) {
     if (chMa.watching === false) { console.log('not watching', chId); continue }
     const stats = maStats(chId, chMa.ma, chMa.iMsgs)
-    stats.messages = chMa.iMsgs
+    stats.messages = chMa.iMsgs.toString()
     chMa.ma.push(now, chMa.iMsgs)
     chMa.oMsgs += chMa.iMsgs
     chMa.iMsgs = 0
@@ -72,11 +73,11 @@ export async function pushMas(mas: MaPool, now: Date | number) {
   }
 }
 
-export async function pullMas(mas: MaPool) {
+export async function pullMas() {
 
   const slackResources = await prisma.slackResource.findMany({
     select: { id: true, },
-    //where: { watching: { equals: true, }, },
+    where: { watching: { equals: true, }, },
   })
 
   for (const _sa of slackResources) {
@@ -84,7 +85,10 @@ export async function pullMas(mas: MaPool) {
       where: { slack_id: { equals: _sa.id, }, },
       orderBy: { created: 'desc', },
     })
-    if (_ma === null) { throw new Error('broken movingAverage record') }
+    if (_ma === null) {
+      console.error(`broken movingAverage record for '${_sa}'`)
+      continue
+    }
 
     maPool[_ma.slack_id] = {
       iMsgs: 0,

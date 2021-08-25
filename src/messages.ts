@@ -3,48 +3,48 @@ import MA, { MovingAverage } from './ma'
 import { snooze } from './util'
 import app, { prisma, io } from './server'
 import sha1 from 'sha1'
-import { channels } from '../data/streamboot-data.old.json'
+//import { channels } from '../data/streamboot-data.old.json'
 
 
-app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
-  //if (process.env.NODE_ENV !== 'production') { return }
-  console.log('tryna join all...')
-  if ((message as GenericMessageEvent).user !== 'U01DV5F30CF') { return }
-  const getPage = async (cursor?: string) => {
-    const { channels, response_metadata } = await client.users.conversations({
-      user: 'USYUBKF1A' /* the fuzz */,
-      limit: 128,
-      cursor,
-    })
-    console.log((channels as any[]).length) //; return
-    //console.table(channels.map((x) => x.id))
-    console.log('JOINING ALL CHANNELS')
-    console.log('channels.length', (channels as any[]).length)
-    for (const channel of (channels as any[])) {
-      const inDb = await prisma.channel.findFirst({where: {id: channel.id}, })
-      console.log(`joining??? id=${channel.id} channel=${channel.name}`)
-      if (inDb === null) {
-        try {
-          const res = await client.conversations.join({channel: channel.id})
-          await prisma.channel.create({data: {id: channel.id}, })
-          console.log(`JOINED ${(res as any).channel.id} ${(res as any).channel.name}`)
-        } catch (e) {
-          console.log(`fail :/ ${channel.id}`)
-          logger.error(e)
-        }
-      }
-      await snooze(2000)
-    }
-    if (response_metadata !== undefined && response_metadata.next_cursor) {
-      await snooze(5000)
-      await getPage(response_metadata.next_cursor)
-      logger.info('PAGE'); logger.info('PAGE'); logger.info('PAGE'); logger.info('PAGE');
-    } else {
-      logger.info('DONE'); logger.info('DONE'); logger.info('DONE'); logger.info('DONE');
-    }
-  }
-  await getPage()
-})
+//app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
+  ////if (process.env.NODE_ENV !== 'production') { return }
+  //console.log('tryna join all...')
+  //if ((message as GenericMessageEvent).user !== 'U01DV5F30CF') { return }
+  //const getPage = async (cursor?: string) => {
+    //const { channels, response_metadata } = await client.users.conversations({
+      //user: 'USYUBKF1A' [> the fuzz <],
+      //limit: 128,
+      //cursor,
+    //})
+    //console.log((channels as any[]).length) //; return
+    ////console.table(channels.map((x) => x.id))
+    //console.log('JOINING ALL CHANNELS')
+    //console.log('channels.length', (channels as any[]).length)
+    //for (const channel of (channels as any[])) {
+      //const inDb = await prisma.channel.findFirst({where: {id: channel.id}, })
+      //console.log(`joining??? id=${channel.id} channel=${channel.name}`)
+      //if (inDb === null) {
+        //try {
+          //const res = await client.conversations.join({channel: channel.id})
+          //await prisma.channel.create({data: {id: channel.id}, })
+          //console.log(`JOINED ${(res as any).channel.id} ${(res as any).channel.name}`)
+        //} catch (e) {
+          //console.log(`fail :/ ${channel.id}`)
+          //logger.error(e)
+        //}
+      //}
+      //await snooze(2000)
+    //}
+    //if (response_metadata !== undefined && response_metadata.next_cursor) {
+      //await snooze(5000)
+      //await getPage(response_metadata.next_cursor)
+      //logger.info('PAGE'); logger.info('PAGE'); logger.info('PAGE'); logger.info('PAGE');
+    //} else {
+      //logger.info('DONE'); logger.info('DONE'); logger.info('DONE'); logger.info('DONE');
+    //}
+  //}
+  //await getPage()
+//})
 
 app.message(/./, async ({ message, say, client, logger }) => {
   if ('user' in message && message.user !== undefined) { // Not all messages have a user FIXME

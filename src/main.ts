@@ -21,7 +21,7 @@ export default async function main() {
   //console.table(allEmas)
   //console.log('GOT all EMAs')
 
-  await pullMas(maPool)
+  await pullMas()
   //await loopPushMas()
   setInterval(loopPushMas, MA_INTERVAL)
 }
