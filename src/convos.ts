@@ -60,12 +60,16 @@ export async function pushMas(mas: MaPool, now: Date | number) {
   try {
     await Promise.all(
       upsertData.map(async row => {
-        await prisma.slackResource.upsert({
-          where:  { id: row.slack_id },
-          create: { id: row.slack_id },
-          update: {  },
-        })
-        await prisma.movingAverage.create({data: row,})
+        try {
+          await prisma.slackResource.upsert({
+            where:  { id: row.slack_id },
+            create: { id: row.slack_id },
+            update: {  },
+          })
+          await prisma.movingAverage.create({data: row,})
+        } catch (e) {
+          console.error(e, JSON.stringify(row, null, 2))
+        }
       })
     )
   } catch (e) {
