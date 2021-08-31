@@ -1,11 +1,11 @@
-import app, { prisma, io, io_http } from './server'
+import app, { io_http } from './server'
 import {maPool, pushMas, pullMas, masStats, MA_INTERVAL} from './convos'
 import './commands'
 
 
 const { HOST, PORT, PORT_WS, NODE_ENV } = process.env
 
-export default async function main() {
+export default async function main(): Promise<void> {
   await app.start({
     host: (HOST ? HOST : '0.0.0.0'),
     port: (PORT ? parseInt(PORT) : 3000),

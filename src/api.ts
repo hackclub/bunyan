@@ -23,7 +23,7 @@ receiver.router.get(`/api/demo-channel-lookup/:id`, async (req: Request, res: Re
   } else {
     try {
       const result = await app.client.conversations.info({channel, token: process.env.BOT_TOKEN})
-      const name:string = result.channel.name
+      const name: string = result.channel.name
       res.json({name})
     } catch (e) {
       console.log(e)
