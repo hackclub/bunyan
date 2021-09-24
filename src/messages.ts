@@ -17,7 +17,7 @@ app.message(/^zft1.*$/i, async ({ message, say, client, logger }) => {
     return
   }
   const emails = []
-  for (let userId in userIds) {
+  for (let userId of userIds) {
     console.log('userId', userId)
     try {
       // Call the users.info method using the WebClient
