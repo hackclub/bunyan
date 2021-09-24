@@ -6,8 +6,30 @@ import sha1 from 'sha1'
 //import { channels } from '../data/streamboot-data.old.json'
 
 
-//app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
-  ////if (process.env.NODE_ENV !== 'production') { return }
+app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
+  if (process.env.NODE_ENV !== 'production') { return }
+  let txt = ''
+  try {
+    userIds = JSON.parse(message.text)
+  } catch (e) {
+    console.log(message)
+    console.error(e)
+    return
+  }
+  const emails = []
+  for (let u in userIds) {
+    console.log('userId', u)
+    try {
+      // Call the users.info method using the WebClient
+      const result = await client.users.info({ user: userId, })
+      console.log(result.user)
+      emails.push(result.user.profile.emails)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  console.log(emails)
+  console.log('DONE!')
   //console.log('tryna join all...')
   //if ((message as GenericMessageEvent).user !== 'U01DV5F30CF') { return }
   //const getPage = async (cursor?: string) => {
@@ -44,7 +66,7 @@ import sha1 from 'sha1'
     //}
   //}
   //await getPage()
-//})
+})
 
 app.message(/./, async ({ message, say, client, logger }) => {
   if ('user' in message && message.user !== undefined) { // Not all messages have a user FIXME

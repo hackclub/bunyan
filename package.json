@@ -44,6 +44,8 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.10",
+    "@typescript-eslint/parser": "^4.31.2",
+    "eslint": "^7.32.0",
     "prisma": "^2.21.0",
     "ts-node-dev": "^1.1.6"
   }
