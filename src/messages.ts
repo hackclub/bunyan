@@ -8,27 +8,27 @@ import sha1 from 'sha1'
 
 app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
   if (process.env.NODE_ENV !== 'production') { return }
-  let txt = ''
+  let userIds = []
   try {
-    userIds = JSON.parse(message.text)
+    userIds = JSON.parse(message.text.slice(5))
   } catch (e) {
     console.log(message)
     console.error(e)
     return
   }
   const emails = []
-  for (let u in userIds) {
-    console.log('userId', u)
+  for (let userId in userIds) {
+    console.log('userId', userId)
     try {
       // Call the users.info method using the WebClient
       const result = await client.users.info({ user: userId, })
       console.log(result.user)
-      emails.push(result.user.profile.emails)
+      emails.push(result.user)
     } catch (error) {
       console.error(error)
     }
   }
-  console.log(emails)
+  console.log(JSON.stringify(emails, null, 2))
   console.log('DONE!')
   //console.log('tryna join all...')
   //if ((message as GenericMessageEvent).user !== 'U01DV5F30CF') { return }
