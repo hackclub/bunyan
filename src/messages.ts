@@ -6,7 +6,7 @@ import sha1 from 'sha1'
 //import { channels } from '../data/streamboot-data.old.json'
 
 
-app.message(/^zft1$/i, async ({ message, say, client, logger }) => {
+app.message(/^zft1.*$/i, async ({ message, say, client, logger }) => {
   if (process.env.NODE_ENV !== 'production') { return }
   let userIds = []
   try {
