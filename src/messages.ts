@@ -22,8 +22,8 @@ app.message(/^zft1.*$/i, async ({ message, say, client, logger }) => {
     try {
       // Call the users.info method using the WebClient
       const result = await client.users.info({ user: userId, })
-      console.log(result.user)
-      emails.push(result.user)
+      console.log(result.user.profile.display_name)
+      emails.push(result.user.profile.email)
     } catch (error) {
       console.error(error)
     }
