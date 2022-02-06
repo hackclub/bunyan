@@ -1,7 +1,7 @@
 import { Tedis, TedisPool } from "tedis";
 
 
-async function newConfig(redisHost: string, redisPort: number) {
+function newConfig(redisHost: string, redisPort: number) {
   try {
     const tedis = new Tedis({
       host: redisHost,
