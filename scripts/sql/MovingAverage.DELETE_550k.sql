@@ -1,0 +1,1 @@
+DELETE FROM "MovingAverage" WHERE id IN (SELECT id FROM "MovingAverage" ORDER BY id ASC LIMIT 550000);
