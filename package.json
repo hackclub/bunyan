@@ -22,8 +22,8 @@
     "build": "npx tsc >/dev/null || true",
     "start": "node dist/index.js",
     "dev": "nodemon --exec 'ts-node' src/index.ts",
-    "systemd:execstart": "yarn run dev",
-    "systemd:execstart:full": "yarn run build && yarn run start",
+    "systemd:execstart:dev": "yarn run dev",
+    "systemd:execstart": "yarn run build && yarn run start",
     "systemd:readme": "echo 'do this!\nsudo ln -sfv /opt/bunyan/systemd/system/bunyan*.* /etc/systemd/system/'"
   },
   "dependencies": {

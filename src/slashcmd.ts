@@ -53,9 +53,9 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
   const chSamples = await prisma.movingAverage.groupBy({
     by: ['slack_id'],
     _sum: { average: true, messages: true },
-    //_avg: { average: true, },
-    //_max: { average: true, },
-    //_count: { _all: true, },
+    _avg: { average: true, },
+    _max: { average: true, },
+    _count: { _all: true, },
     where: { // channels within the past `time`
       created: { gt: sampleTime, },
       slack_id: { startsWith: 'C', },
@@ -68,10 +68,8 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
     take: 5,
   })
 
-  console.log(chSamples)
-  console.log(chSamples.length)
-
   if (chSamples.length === 0) {
+    // We failed here if this happens. Give a nice error message!
     await respond({
       response_type: 'ephemeral',
       replace_original: true,
