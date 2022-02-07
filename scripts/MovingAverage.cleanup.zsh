@@ -13,7 +13,6 @@ local scriptClean="$sdir"/sql/DATABASE.clean.sql
 local psqlArgs=(
 	"--quiet"
 	"--tuples-only"
-	"--echo-queries"
 )
 
 for i in $(seq 0 256); do
