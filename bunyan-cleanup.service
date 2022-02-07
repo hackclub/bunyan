@@ -1,8 +1,10 @@
 [Unit]
 Description=Bunyan - cleanup the database
+StartLimitInterval=200
+StartLimitBurst=5
 
 [Service]
-User=zfogg
 Type=oneshot
 EnvironmentFile=/opt/bunyan/.env
 ExecStart=/bin/zsh /opt/bunyan/scripts/MovingAverage.cleanup.zsh
+RestartSec=30
