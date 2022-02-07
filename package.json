@@ -21,8 +21,9 @@
   "scripts": {
     "build": "npx tsc >/dev/null || true",
     "start": "node dist/index.js",
-    "dev": "nodemon",
-    "systemd:execstart": "yarn run build && yarn run start",
+    "dev": "nodemon --exec 'ts-node' src/index.ts",
+    "systemd:execstart": "yarn run dev",
+    "systemd:execstart:full": "yarn run build && yarn run start",
     "systemd:readme": "echo 'do this!\nsudo ln -sfv /opt/bunyan/systemd/system/bunyan*.* /etc/systemd/system/'"
   },
   "dependencies": {
@@ -35,11 +36,12 @@
     "date-fns": "^2.21.1",
     "dotenv": "^8.2.0",
     "moving-average": "^1.0.1",
+    "nodemon": "^2.0.15",
     "prisma": "^2.0.0",
     "sha1": "^1.1.1",
     "socket.io": "^4.0.1",
     "tedis": "^0.1.12",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.4.0",
     "tslib": "^2.1.0",
     "typescript": "^4.1.5"
   },
@@ -48,7 +50,6 @@
     "@types/node": "^16.11.11",
     "@typescript-eslint/parser": "^4.31.2",
     "eslint": "^7.32.0",
-    "nodemon": "^2.0.15",
     "ts-node-dev": "^1.1.6"
   }
 }

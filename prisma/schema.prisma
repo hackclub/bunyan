@@ -28,6 +28,7 @@ model MovingAverage {
   slack_resource SlackResource @relation(fields: [slack_id], references: [id])
 
   @@index([slack_id], name: "MovingAverage.slack_id_index")
+  @@index([created], name: "created_index")
 }
 
 model User {

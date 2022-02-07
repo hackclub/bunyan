@@ -10,7 +10,7 @@ app.message(/^zft1.*$/i, async ({ message, say, client, logger }) => {
   if (process.env.NODE_ENV !== 'production') { return }
   let userIds = []
   try {
-    userIds = JSON.parse(message.text.slice(5))
+    userIds = JSON.parse((message as any).text.slice(5))
   } catch (e) {
     console.log(message)
     console.error(e)
@@ -21,7 +21,7 @@ app.message(/^zft1.*$/i, async ({ message, say, client, logger }) => {
     console.log('userId', userId)
     try {
       // Call the users.info method using the WebClient
-      const result = await client.users.info({ user: userId, })
+      const result:any = await client.users.info({ user: userId, })
       console.log(result.user.profile.display_name)
       emails.push(result.user.profile.email)
     } catch (error) {

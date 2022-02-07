@@ -6,14 +6,7 @@ import cors from 'cors'
 receiver.router.use(express.static('public'))
 
 receiver.router.get(`/api/demo`, async (req: Request, res: Response, next: NextFunction) => {
-  const results = await prisma.fiveMinEmaView.findMany({
-    orderBy: [
-      {
-        ten_min_timestamp: 'desc'
-      }
-    ]
-  })
-  res.json(results)
+  res.json({})
 })
 
 receiver.router.get(`/api/demo-channel-lookup/:id`, async (req: Request, res: Response, next: NextFunction) => {
@@ -22,7 +15,7 @@ receiver.router.get(`/api/demo-channel-lookup/:id`, async (req: Request, res: Re
     res.status(500).json({err: {code: 500, message: `resource is undefined`}})
   } else {
     try {
-      const result = await app.client.conversations.info({channel, token: process.env.BOT_TOKEN})
+      const result:any = await app.client.conversations.info({channel, token: process.env.BOT_TOKEN})
       const name:string = result.channel.name
       res.json({name})
     } catch (e) {
@@ -103,7 +96,7 @@ receiver.router.get(`/api/convos/top`, cors(), async (req: Request, res: Respons
     if (tops.length < 1) {
       res.status(404).json({err: {code: 404, message: `empty resources`}})
     } else {
-      tops.sort((x, y) => { return y[arg_key].toNumber() - x[arg_key].toNumber() })
+      tops.sort((x, y) => { return (y as any)[arg_key].toNumber() - (x as any)[arg_key].toNumber() })
       res.status(200).json(tops.slice(0, arg_take))
     }
 
@@ -119,14 +112,14 @@ receiver.router.get(`/api/top/emoji`, cors(), async (req: Request, res: Response
   try {
     const out = await prisma.reaction.groupBy({
       by: ['emoji_id'],
-      count: { _all: true, },
+      _count: { _all: true, },
       orderBy: { _count: { id: 'desc', }, },
       where: {
         created: { gt: new Date(Date.now() - (1000 * 60 * 60 * 24)), },
       },
       //select: {
         //emoji_id: true,
-        //count: {select: {id: true}},
+        //_count: {select: {id: true}},
       //},
     })
     res.status(200).json(out.map((x: any) => {x.count = x.count._all; return x}))
@@ -143,7 +136,7 @@ receiver.router.get(`/api/top/users`, cors(), async (req: Request, res: Response
   try {
     const out = await prisma.message.groupBy({
       by: ['user_id'],
-      count: { _all: true, },
+      _count: { _all: true, },
       orderBy: { _count: { id: 'desc', }, },
       where: {
         created: { gt: new Date(Date.now() - (1000 * 60 * 60 * 24)), },
@@ -163,7 +156,7 @@ receiver.router.get(`/api/top/channels`, cors(), async (req: Request, res: Respo
   try {
     const out = await prisma.message.groupBy({
       by: ['channel_id'],
-      count: { _all: true, },
+      _count: { _all: true, },
       orderBy: { _count: { id: 'desc', }, },
       where: {
         created: { gt: new Date(Date.now() - (1000 * 60 * 60 * 24)), },

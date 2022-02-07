@@ -165,21 +165,21 @@ app.event('app_mention', async ({ event, say, client, context, logger }) => {
       }
 
     } else if (arg = event.text.match(RegExp(`^<@${BOT_ID}> stats (me|channel)`, `i`))) {
-      let blocks
+      let blocks:any
       switch (arg[1]) {
         case `me`:
           const usMa = getMa(event.user)
           if (usMa === undefined || usMa.ma == undefined) { break }
           const usMaStats = maStats(event.user, usMa.ma, usMa.iMsgs)
           blocks = userMaBlocks(event.user, usMaStats, usMa.watching)
-          await say({blocks, thread_ts})
+          await say({blocks: blocks as any, thread_ts} as any)
           break
         case `channel`:
           const chMa = getMa(event.channel)
           if (chMa === undefined || chMa.ma == undefined) { break }
           const chMaStats = maStats(event.channel, chMa.ma, chMa.iMsgs)
           blocks = channelMaBlocks(event.channel, chMaStats, chMa.watching)
-          await say({blocks: blocks as SayArguments, thread_ts})
+          await say({blocks: blocks as any, thread_ts} as any)
           break
         default:
           logger.error(msg = 'could not get status. check your command?', event)

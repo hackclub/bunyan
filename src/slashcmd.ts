@@ -19,6 +19,21 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
   logger.info(command)
   await ack()
 
+  await respond({
+    response_type: 'ephemeral',
+    replace_original: true,
+    blocks: [{
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: [
+          `\`${command.command} ${command.text}\` :robot_face:`,
+          `:axe: Ayy, hold up.. Grabbing some logs rq... :wood:`,
+        ].join('\n')
+      }
+    },]
+  })
+
   // idk why .filter doesn't work lol
   //const channelsOnly = []
   //for (const [chId, chMa] of sortedMas(maPool)) {
@@ -53,13 +68,36 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
     take: 5,
   })
 
+  console.log(chSamples)
+  console.log(chSamples.length)
+
+  if (chSamples.length === 0) {
+    await respond({
+      response_type: 'ephemeral',
+      replace_original: true,
+      blocks: [{
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `:sweat_smile: OKAY nvm the surf was _NOT_ up lol! I had some trouble with the logs.. :sweat:`,
+            `:ox: Seems like ol' Babe isn't pulling her weight, eh! :man-shrugging:`,
+            `:happy_ping_sock: (ping @zfogg maybe?..) :expanding_brain_4:`,
+          ].join('\n')
+        }
+      },]
+    })
+    return
+  }
+
+
   const channelSections = chSamples
     .map(async (chSamp: any, i) => {
       const { channel } = await client.conversations.info({channel: chSamp.slack_id})
       //const score = (Math.exp(chMa.ma.average()) - 1).toFixed(4)
-      const score_sum = ((        chSamp.sum.average)).toFixed(2)
-      const score_avg = (Math.exp(chSamp.avg.average)).toFixed(2)
-      const score_max = ((        chSamp.max.average)).toFixed(2)
+      const score_sum = ((        chSamp._sum.average)).toFixed(2)
+      const score_avg = (Math.exp(chSamp._avg.average)).toFixed(2)
+      const score_max = ((        chSamp._max.average)).toFixed(2)
       const desc = (channel as any).topic.value
       const desc_lines = desc.split('\n').length // max line limit smh @anirudhb
       return [
@@ -68,7 +106,7 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
           text: {
             type: "mrkdwn",
             text: [
-              `*#${i+1}:* <#${chSamp.slack_id || 'NULL'}> (past *${argTime}* mins: *${chSamp.sum.messages || 0}* messages)`,
+              `*#${i+1}:* <#${chSamp.slack_id || 'NULL'}> (past *${argTime}* mins: *${chSamp._sum.messages || 0}* messages)`,
               `*Activity score:* average = *${score_avg || -1}* | maximum = *${score_max || -1}*`,
               `${desc.substring(0, 512) || ''}${(desc.length > 512 || desc_lines > 3) ? ' [...]' : ''}`  // 512 char limit
                 .split('\n').slice(0, 3).join('\n'),
@@ -80,35 +118,7 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
     })
 
   try {
-    // FIXME: this modal stuff lol
-    // Call views.open with the built-in client
-    //const result = await client.views.open({
-    //const result = await client.views.open({
-      //trigger_id: body.trigger_id, // Pass a valid trigger_id within 3 seconds of receiving it
-      //view: { // View payload
-        //type: 'modal',
-        //callback_id: 'channels_1', // View identifier
-        //title: {
-          //type: 'plain_text',
-          //text: 'Channel picker'
-        //},
-        //blocks: [
-          //{
-            //type: "section",
-            //text: {
-              //type: "mrkdwn",
-              //text: "Hi! These are the top channels to check out right now:"
-            //}
-          //},
-          //{
-            //type: "divider"
-          //},
-          //...await Promise.all(channelSections),
-        //]
-      //}
-    //})
-
-    const sections = [].concat.apply([], await Promise.all(channelSections));
+    const sections = [].concat.apply([], await Promise.all(channelSections as any));
 
     await respond({
       response_type: 'ephemeral',
@@ -118,7 +128,6 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
         text: {
           type: "mrkdwn",
           text: [
-            `\`${command.command} ${command.text}\` :robot_face:`,
             `:axe: Surfs' up! Specifically in these channels :sparkles:`,
             `_(since ${formatRelative(subMinutes(new Date(), argTime), new Date())})_`,
           ].join('\n')

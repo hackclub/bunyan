@@ -93,7 +93,7 @@ type TopForItem = {
   emoji_id?: string
   channel_id?: string
   user_id?: string
-  count: {[key: string]: number}
+  _count: {[key: string]: number}
 }
 export async function MergeGroups(by: string, xs: TopForItem[], ys: TopForItem[], key: string) {
   const tmp = {}
@@ -161,8 +161,8 @@ export async function TopUsersForChannel(channel_ids: string[], [gt, lt]: Date[]
 export async function TopEmojiForChannel(channel_ids: string[], [gt, lt]: Date[]) {
   const topEmojiForChannel = await prisma.reaction.groupBy({
     by: ['emoji_id'],
-    count: {_all: true},
-    _orderBy: {_count: {id: 'desc'}},
+    _count: {_all: true},
+    orderBy: {_count: {id: 'desc'}},
     where: {
       channel_id: {in: channel_ids},
       created: { gt, lt, },
@@ -180,8 +180,8 @@ export async function TopEmojiForChannel(channel_ids: string[], [gt, lt]: Date[]
 export async function TopEmojiForUser(user_ids: string[], [gt, lt]: Date[]) {
   const topEmojiForUser = await prisma.reaction.groupBy({
     by: ['emoji_id'],
-    count: {_all: true},
-    _orderBy: {_count: {id: 'desc'}},
+    _count: {_all: true},
+    orderBy: {_count: {id: 'desc'}},
     where: {
       user_id: {in: user_ids},
       created: { gt, lt, },
@@ -207,8 +207,8 @@ export async function TopChannelsForUser(user_ids: string[], [gt, lt]: Date[]) {
 
   const topChannelsForUser_messages = await prisma.message.groupBy({
     by: ['channel_id'],
-    count: {_all: true},
-    _orderBy: {_count: {id: 'desc'}},
+    _count: {_all: true},
+    orderBy: {_count: {id: 'desc'}},
     where: {
       user_id: {in: user_ids},
       created: { gt, lt, },
@@ -219,8 +219,8 @@ export async function TopChannelsForUser(user_ids: string[], [gt, lt]: Date[]) {
 
   const topChannelsForUser_reactions = await prisma.reaction.groupBy({
     by: ['channel_id'],
-    count: {_all: true},
-    _orderBy: {_count: {id: 'desc'}},
+    _count: {_all: true},
+    orderBy: {_count: {id: 'desc'}},
     where: {
       user_id: {in: user_ids},
       created: { gt, lt, },
@@ -231,14 +231,14 @@ export async function TopChannelsForUser(user_ids: string[], [gt, lt]: Date[]) {
 
   // INFO: combine message and reaction count and sort by the result
   const _topChannelsForUser: {[key: string]: number} = {}
-  topChannelsForUser_messages.reduceRight(((acc, {channel_id, count}, i) => {
-    if (!(channel_id in acc)) { acc[channel_id] = 0 }; acc[channel_id] += count._all; return acc
+  topChannelsForUser_messages.reduceRight(((acc, {channel_id, _count}, i) => {
+    if (!(channel_id in acc)) { acc[channel_id] = 0 }; acc[channel_id] += _count._all; return acc
   }), _topChannelsForUser)
-  topChannelsForUser_reactions.reduceRight(((acc, {channel_id, count}, i) => {
-    if (!(channel_id in acc)) { acc[channel_id] = 0 }; acc[channel_id] += count._all; return acc
+  topChannelsForUser_reactions.reduceRight(((acc, {channel_id, _count}, i) => {
+    if (!(channel_id in acc)) { acc[channel_id] = 0 }; acc[channel_id] += _count._all; return acc
   }), _topChannelsForUser)
-  const topChannelsForUser: {channel_id: string, count: number}[] = Object.entries(_topChannelsForUser)
-    .map(([channel_id, count]) => ({channel_id, count}))
+  const topChannelsForUser: {channel_id: string, _count: number}[] = Object.entries(_topChannelsForUser)
+    .map(([channel_id, _count]) => ({channel_id, _count}))
     .sort((x, y) => (y._count - x._count))
 
   //console.table(topChannelsForUser)
@@ -251,8 +251,8 @@ export async function TopChannelsForUser(user_ids: string[], [gt, lt]: Date[]) {
 export async function TopChannelsForEmoji(emoji_ids: string[], [gt, lt]: Date[]) {
   const topChannelsForEmoji = await prisma.reaction.groupBy({
     by: ['channel_id'],
-    count: {_all: true},
-    _orderBy: {_count: {id: 'desc'}},
+    _count: {_all: true},
+    orderBy: {_count: {id: 'desc'}},
     where: {
       emoji_id: {in: emoji_ids},
       created: { gt, lt, },
@@ -271,7 +271,7 @@ export async function TopUsersForEmoji(emoji_ids: string[], [gt, lt]: Date[]) {
   const topUsersForEmoji = await prisma.reaction.groupBy({
     by: ['user_id'],
     _count: {_all: true},
-    _orderBy: {_count: {id: 'desc'}},
+    orderBy: {_count: {id: 'desc'}},
     where: {
       emoji_id: {in: emoji_ids},
       created: { gt, lt, },
