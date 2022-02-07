@@ -33,6 +33,7 @@
     "date-fns": "^2.21.1",
     "dotenv": "^8.2.0",
     "moving-average": "^1.0.1",
+    "prisma": "^3.9.1",
     "sha1": "^1.1.1",
     "socket.io": "^4.0.1",
     "tedis": "^0.1.12",
@@ -46,7 +47,6 @@
     "@typescript-eslint/parser": "^4.31.2",
     "eslint": "^7.32.0",
     "nodemon": "^2.0.15",
-    "prisma": "^2.21.0",
     "ts-node-dev": "^1.1.6"
   }
 }
