@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "build": "npx tsc || true",
-    "start": "npx nodemon dist/index.js",
+    "start": "node dist/index.js",
     "dev": "nodemon"
   },
   "dependencies": {
@@ -33,7 +33,6 @@
     "date-fns": "^2.21.1",
     "dotenv": "^8.2.0",
     "moving-average": "^1.0.1",
-    "nodemon": "^2.0.7",
     "sha1": "^1.1.1",
     "socket.io": "^4.0.1",
     "tedis": "^0.1.12",
@@ -46,6 +45,7 @@
     "@types/node": "^16.11.11",
     "@typescript-eslint/parser": "^4.31.2",
     "eslint": "^7.32.0",
+    "nodemon": "^2.0.15",
     "prisma": "^2.21.0",
     "ts-node-dev": "^1.1.6"
   }
