@@ -87,35 +87,34 @@ export async function pullMas() {
     where: { watching: { equals: true, }, },
   })
 
-  const _sas = slackResources.map((_sa) => {
-    return prisma.movingAverage.findFirst({
+  for (const _sa of slackResources) {
+    console.log(_sa.id)
+    prisma.movingAverage.findFirst({
       where: { slack_id: { equals: _sa.id, }, },
       orderBy: { created: 'desc', },
     })
-  })
-
-  // FIXME: this is not that clever lol
-  const _mas = await Promise.all(_sas)
-  for (const _ma of _mas) {
-    if (_ma === null) {
-      console.error(`broken movingAverage record for one!`)
-      continue
-    }
-
-    maPool[_ma.slack_id] = {
-      iMsgs: 0,
-      oMsgs: 0,
-      watching: true,
-      ma: MA(MA_INTERVAL).create(
-        _ma.average.toNumber(),
-        _ma.variance.toNumber(),
-        _ma.deviation.toNumber(),
-        _ma.forecast.toNumber(),
-        new Date(_ma.created).getTime(),
-      ),
-    }
+    .then((_ma: any) => {
+      if (_ma === null) { return }
+      console.log(_ma.slack_id)
+      maPool[_ma.slack_id] = {
+	iMsgs: 0,
+	oMsgs: 0,
+	watching: true,
+	ma: MA(MA_INTERVAL).create(
+	  _ma.average.toNumber(),
+	  _ma.variance.toNumber(),
+	  _ma.deviation.toNumber(),
+	  _ma.forecast.toNumber(),
+	  new Date(_ma.created).getTime(),
+	),
+      }
+    })
+    .catch((e) => {
+      console.error(e)
+    })
   }
-  console.info('done pulling mas forreal?', _mas.length, _sas.length)
+  // FIXME: this is not that clever lol
+  console.info('done pulling mas forreal?')
 }
 
 export type MaStat = {
