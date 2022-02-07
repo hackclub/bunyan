@@ -37,18 +37,18 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
 
   const chSamples = await prisma.movingAverage.groupBy({
     by: ['slack_id'],
-    sum: { average: true, messages: true },
-    avg: { average: true, },
-    max: { average: true, },
-    count: { _all: true, },
+    _sum: { average: true, messages: true },
+    _avg: { average: true, },
+    _max: { average: true, },
+    _count: { _all: true, },
     where: { // channels within the past `time`
       created: { gt: sampleTime, },
       slack_id: { startsWith: 'C', },
       slack_resource: { watching: true, },
     },
-    //orderBy: {_max: {average: 'desc', }, },
-    orderBy: {_avg: {average: 'desc', }, },
-    having: { average: { avg: {gt: 0}, }, },
+    //orderBy: { _max: {average: 'desc', }, },
+    orderBy: { _avg: {average: 'desc', }, },
+    having: { average: { _avg: {gt: 0}, }, },
     // TODO: make .take a /channels arg
     take: 5,
   })
@@ -190,7 +190,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
           type: "mrkdwn",
           text: [
             `Top _@users_ for ${argSlackTypeRender}:`,
-            topUsersForChannel.map(x => `<@${x.user_id}> (${x.count._all})`).join(', ')
+            topUsersForChannel.map(x => `<@${x.user_id}> (${x._count._all})`).join(', ')
           ].join('\n'),
         },
       })
@@ -205,7 +205,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
           type: "mrkdwn",
           text: [
             `Top _:emoji:_ for ${argSlackTypeRender}:`,
-            topEmojiForChannel.map(x => `:${x.emoji_id}: (${x.count._all})`).join(', ')
+            topEmojiForChannel.map(x => `:${x.emoji_id}: (${x._count._all})`).join(', ')
           ].join('\n'),
         },
       })
@@ -221,7 +221,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
           type: "mrkdwn",
           text: [
             `Top _:emoji:_ for ${argSlackTypeRender}:`,
-            topEmojiForUser.map(x => `:${x.emoji_id}: (${x.count._all})`).join(', ')
+            topEmojiForUser.map(x => `:${x.emoji_id}: (${x._count._all})`).join(', ')
           ].join('\n'),
         },
       })
@@ -236,7 +236,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
           type: "mrkdwn",
           text: [
             `Top _#channels_ for ${argSlackTypeRender}:`,
-            topChannelsForUser.map(x => `<#${x.channel_id}> (${x.count})`).join(', ')
+            topChannelsForUser.map(x => `<#${x.channel_id}> (${x._count})`).join(', ')
           ].join('\n'),
         },
       })
@@ -252,7 +252,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
           type: "mrkdwn",
           text: [
             `Top _#channels_ for ${argSlackTypeRender}:`,
-            topChannelsForEmoji.map(x => `<#${x.channel_id}> (${x.count._all})`).join(', ')
+            topChannelsForEmoji.map(x => `<#${x.channel_id}> (${x._count._all})`).join(', ')
           ].join('\n'),
         },
       })
@@ -267,7 +267,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
           type: "mrkdwn",
           text: [
             `Top _@users_ for ${argSlackTypeRender}:`,
-            topUsersForEmoji.map(x => `<@${x.user_id}> (${x.count._all})`).join(', ')
+            topUsersForEmoji.map(x => `<@${x.user_id}> (${x._count._all})`).join(', ')
           ].join('\n'),
         },
       })
@@ -283,8 +283,8 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
           type: "mrkdwn",
           text: [
             `Top *:emoji:* _(hint: try \`${CMD.supwit} :scrappy:\`)_`,
-            //topEmoji.map(x => `:${x.emoji_id}: - \`:${x.emoji_id}:\` (${x.count._all})`).join(', ')
-            topEmoji.map(x => `:${x.emoji_id}: (${x.count._all})`).join(', ')
+            //topEmoji.map(x => `:${x.emoji_id}: - \`:${x.emoji_id}:\` (${x._count._all})`).join(', ')
+            topEmoji.map(x => `:${x.emoji_id}: (${x._count._all})`).join(', ')
           ].join('\n'),
         },
       })
@@ -299,7 +299,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
           type: "mrkdwn",
           text: [
             `Top *#channels* _(hint: try \`${CMD.supwit} #scrapbook\`)_`,
-            topChannels.map(x => `<#${x.channel_id}> (${(x as any).count._all})`).join(', ')
+            topChannels.map(x => `<#${x.channel_id}> (${(x as any)._count._all})`).join(', ')
           ].join('\n'),
         },
       })
@@ -314,7 +314,7 @@ app.command(CMD.supwit, async ({ command, ack, client, body, respond, logger }) 
           type: "mrkdwn",
           text: [
             `Top *@users* _(hint: try \`${CMD.supwit} @scrappy\`)_`,
-            topUsers.map(x => `<@${x.user_id}> (${(x as any).count._all})`).join(', ')
+            topUsers.map(x => `<@${x.user_id}> (${(x as any)._count._all})`).join(', ')
           ].join('\n'),
         },
       })

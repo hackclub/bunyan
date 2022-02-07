@@ -1,5 +1,6 @@
 [Install]
 WantedBy=default.target
+WantedBy=timers.target
 
 [Unit]
 Description=Bunyan - clean up the database
@@ -8,6 +9,3 @@ Description=Bunyan - clean up the database
 OnCalendar=*-*-1,15 4:00:00
 Unit=bunyan-cleanup.service
 Persistent=true
-
-[Install]
-WantedBy=timers.target

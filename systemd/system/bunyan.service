@@ -1,0 +1,16 @@
+[Install]
+WantedBy=default.target
+
+[Unit]
+Description=Bunyan - run the nodejs slack bot app
+StartLimitInterval=200
+StartLimitBurst=5
+After=network-online.target
+
+[Service]
+User=zfogg
+Type=simple
+WorkingDirectory=/opt/bunyan
+EnvironmentFile=/opt/bunyan/.env
+ExecStart=/usr/bin/yarn run systemd:execstart
+RestartSec=30

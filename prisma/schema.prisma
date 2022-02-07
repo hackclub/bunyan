@@ -27,7 +27,6 @@ model MovingAverage {
   messages       Int           @default(0)
   slack_resource SlackResource @relation(fields: [slack_id], references: [id])
 
-  @@index([created])
   @@index([slack_id], name: "MovingAverage.slack_id_index")
 }
 
@@ -69,7 +68,6 @@ model Reaction {
   emoji      Emoji    @relation(fields: [emoji_id], references: [id])
   user       User     @relation(fields: [user_id], references: [id])
 
-  @@index([created])
   @@index([channel_id], name: "Reaction.channel_id_index")
   @@index([emoji_id, channel_id], name: "Reaction.emoji_id_channel_id_index")
   @@index([emoji_id], name: "Reaction.emoji_id_index")
@@ -84,12 +82,11 @@ model Message {
   channel_id     String
   content_hash   String
   content_length Int
-  ts             Decimal  @default(0)
   thread_ts      Decimal  @default(0)
+  ts             Decimal  @default(0)
   channel        Channel  @relation(fields: [channel_id], references: [id])
   user           User     @relation(fields: [user_id], references: [id])
 
-  @@index([created])
   @@index([channel_id], name: "Message.channel_id_index")
   @@index([user_id, channel_id], name: "Message.user_id_channel_id_index")
   @@index([user_id], name: "Message.user_id_index")
