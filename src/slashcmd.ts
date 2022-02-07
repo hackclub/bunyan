@@ -47,15 +47,15 @@ app.command(CMD.sup, async ({ command, ack, client, body, respond, logger }) => 
   if (commandMatches && commandMatches[1]) {
     argTime = parseInt(commandMatches[1], 10)
   }
-  if (argTime <= 0) { argTime = 120 } // default
+  if (argTime <= 0) { argTime = 420 } // default
   const sampleTime = new Date(Date.now() - 1000 * 60 * argTime)
 
   const chSamples = await prisma.movingAverage.groupBy({
     by: ['slack_id'],
     _sum: { average: true, messages: true },
-    _avg: { average: true, },
-    _max: { average: true, },
-    _count: { _all: true, },
+    //_avg: { average: true, },
+    //_max: { average: true, },
+    //_count: { _all: true, },
     where: { // channels within the past `time`
       created: { gt: sampleTime, },
       slack_id: { startsWith: 'C', },
