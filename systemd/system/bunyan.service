@@ -12,5 +12,5 @@ User=zfogg
 Type=simple
 WorkingDirectory=/opt/bunyan
 EnvironmentFile=/opt/bunyan/.env
-ExecStart=/usr/bin/yarn run systemd:execstart
+ExecStart=/usr/bin/yarn run systemd:execstart:dev
 RestartSec=30

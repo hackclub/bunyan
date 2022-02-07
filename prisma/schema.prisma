@@ -70,7 +70,6 @@ model Reaction {
   user       User     @relation(fields: [user_id], references: [id])
 
   @@index([channel_id],           name: "Reaction.channel_id_index")
-  @@index([user_id],              name: "Reaction.user_id_index")
   @@index([emoji_id, channel_id], name: "Reaction.emoji_id_channel_id_index")
   @@index([user_id, channel_id],  name: "Reaction.user_id_channel_id_index")
 }
@@ -87,7 +86,6 @@ model Message {
   channel        Channel  @relation(fields: [channel_id], references: [id])
   user           User     @relation(fields: [user_id], references: [id])
 
-  @@index([channel_id],          name: "Message.channel_id_index")
   @@index([user_id],             name: "Message.user_id_index")
   @@index([channel_id, user_id], name: "Message.channel_id_user_id_index")
 }

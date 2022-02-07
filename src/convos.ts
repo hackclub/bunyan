@@ -45,6 +45,7 @@ export function getMa(chId: string) {
 
 
 export async function pushMas(mas: MaPool, now: Date | number) {
+  console.log('try pushing mas')
   //if (initialPull === true) { return }
   const upsertData = []
   for (const [chId, chMa] of Object.entries(mas)) {
@@ -59,38 +60,45 @@ export async function pushMas(mas: MaPool, now: Date | number) {
   }
   try {
     await Promise.all(
-      upsertData.map(async row => {
-        try {
-          await prisma.slackResource.upsert({
-            where:  { id: row.slack_id },
-            create: { id: row.slack_id },
-            update: {  },
-          })
-          await prisma.movingAverage.create({data: row,})
-        } catch (e) {
-          console.error(e, JSON.stringify(row, null, 2))
-        }
+      upsertData.map(row => {
+	return prisma.slackResource.upsert({
+	  where:  { id: row.slack_id },
+	  create: { id: row.slack_id },
+	  update: {  },
+	}).then((row: any) => {
+	  prisma.movingAverage.create({data: row,})
+	}).catch((e) => {
+	  console.error(e, JSON.stringify(row, null, 2))
+	})
       })
-    )
+    ).then((rows) => {
+      console.info('done pushing mas!', rows.length)
+    })
   } catch (e) {
     console.error(e)
   }
 }
 
 export async function pullMas() {
-
+  console.info('start pulling mas!')
+  // INFO: stupido you can do the next two thingies in one query..
   const slackResources = await prisma.slackResource.findMany({
     select: { id: true, },
     where: { watching: { equals: true, }, },
   })
 
-  for (const _sa of slackResources) {
-    const _ma = await prisma.movingAverage.findFirst({
+  const _sas = slackResources.map((_sa) => {
+    return prisma.movingAverage.findFirst({
       where: { slack_id: { equals: _sa.id, }, },
       orderBy: { created: 'desc', },
     })
+  })
+
+  // FIXME: this is not that clever lol
+  const _mas = await Promise.all(_sas)
+  for (const _ma of _mas) {
     if (_ma === null) {
-      console.error(`broken movingAverage record for '${_sa.id}'`)
+      console.error(`broken movingAverage record for one!`)
       continue
     }
 
@@ -106,9 +114,8 @@ export async function pullMas() {
         new Date(_ma.created).getTime(),
       ),
     }
-
-    //getMa(_sa.id)
   }
+  console.info('done pulling mas forreal?', _mas.length, _sas.length)
 }
 
 export type MaStat = {

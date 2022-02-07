@@ -12,15 +12,6 @@ export default async function main() {
   })
   console.log(`🪓 Paul Bunyan is logging on http://${HOST}:${PORT}/ in mode='${NODE_ENV}'!`)
 
-  //const port_ws = PORT_WS ? PORT_WS : 3003
-  //await io_http.listen(port_ws)
-  //console.log(`socket.io started on http://${HOST}:${port_ws}/ in mode='${NODE_ENV}'!`)
-
-  //console.log('getting all EMAs')
-  //const allEmas = await prisma.movingAverage.findMany()
-  //console.table(allEmas)
-  //console.log('GOT all EMAs')
-
   await pullMas()
   //await loopPushMas()
   setInterval(loopPushMas, MA_INTERVAL)
