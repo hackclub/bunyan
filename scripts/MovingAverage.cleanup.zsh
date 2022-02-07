@@ -2,6 +2,8 @@
 
 local sdir="${0:a:h}"
 
+#source "${sdir}/../.env"
+
 local timeAgo="`date --date='45 days ago' -u +'%Y-%m-%d'`"
 
 local scriptSelect="$sdir"/sql/MovingAverage.SELECT.created_ASC_LIM_2.sql

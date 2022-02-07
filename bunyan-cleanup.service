@@ -1,0 +1,8 @@
+[Unit]
+Description=Bunyan - cleanup the database
+
+[Service]
+User=zfogg
+Type=oneshot
+EnvironmentFile=/opt/bunyan/.env
+ExecStart=/bin/zsh /opt/bunyan/scripts/MovingAverage.cleanup.zsh
