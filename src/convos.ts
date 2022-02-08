@@ -8,8 +8,8 @@ export const MA_INTERVAL = process.env.MA_INTERVAL
   //: 1000 * 10 * 1  // 10 seconds
   //: 1000 * 30 * 1  // 30 seconds
   //: 1000 * 60 * 1  // one minute
-  : 1000 * 90 * 1  // 90 seconds
-  //: 1000 * 60 * 5  // five minutes
+  //: 1000 * 90 * 1  // 90 seconds
+  : 1000 * 60 * 5  // five minutes
   //: 1000 * 60 * 30 // thirty minutes
 
 
@@ -53,6 +53,9 @@ export async function pushMas(mas: MaPool, now: Date | number) {
     const stats = maStats(chId, chMa.ma, chMa.iMsgs)
     stats.messages = chMa.iMsgs
     chMa.ma.push(now, chMa.iMsgs)
+    if (chMa.iMsgs > 0) {
+      console.log(chMa.ma, stats)
+    }
     chMa.oMsgs += chMa.iMsgs
     chMa.iMsgs = 0
     const upsertRow = { ...stats }
@@ -80,22 +83,30 @@ export async function pushMas(mas: MaPool, now: Date | number) {
 }
 
 export async function pullMas() {
-  console.info('start pulling mas!')
-  // INFO: stupido you can do the next two thingies in one query..
+
+  const maResources = await prisma.movingAverage.groupBy({
+    by: ['slack_id'],
+    where: { messages: { gt: 0 }, },
+  })
+  console.log('mas to pull: length', maResources.length)
+
   const slackResources = await prisma.slackResource.findMany({
     select: { id: true, },
-    where: { watching: { equals: true, }, },
+    where: {
+      watching: { equals: true, },
+      id: { in: maResources.map(({slack_id}) => slack_id) },
+    },
   })
 
-  for (const _sa of slackResources) {
-    console.log(_sa.id)
-    prisma.movingAverage.findFirst({
+  const pas = slackResources.map((_sa) => {
+    return prisma.movingAverage.findFirst({
       where: { slack_id: { equals: _sa.id, }, },
       orderBy: { created: 'desc', },
-    })
-    .then((_ma: any) => {
-      if (_ma === null) { return }
-      console.log(_ma.slack_id)
+    }).then((_ma) => {
+      if (_ma === null) {
+	throw new Error(`broken movingAverage record for '${_sa.id}'`)
+      }
+      console.info(`pulled ${_ma.slack_id}`)
       maPool[_ma.slack_id] = {
 	iMsgs: 0,
 	oMsgs: 0,
@@ -108,13 +119,20 @@ export async function pullMas() {
 	  new Date(_ma.created).getTime(),
 	),
       }
+    }).catch((e) => {
+      console.error(`error with ${_sa.id}`, e)
     })
-    .catch((e) => {
-      console.error(e)
-    })
+  })
+
+  try {
+    console.log('pulling mas!', slackResources.length)
+    await Promise.all(pas)
+    console.log(`done pulling mas!`)
+  } catch (e) {
+    console.error('error pulling mas!', e)
   }
-  // FIXME: this is not that clever lol
-  console.info('done pulling mas forreal?')
+
+  //getMa(_sa.id)
 }
 
 export type MaStat = {
