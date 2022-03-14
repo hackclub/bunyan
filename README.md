@@ -1,6 +1,8 @@
 <img src="https://cloud-k25eaalth-hack-club-bot.vercel.app/0dzuu6xmx4aaorbz.jpeg" width="200px" align="right">
 
-# @Paul Bunyan
+# @Paul Bunyan [DEPRECATED]
+
+⚠️ This bot is no longer being maintained or updated by Hack Club staff.
 
 _Work inspired by [@streambot](https://github.com/hackclub/streambot)._
 
